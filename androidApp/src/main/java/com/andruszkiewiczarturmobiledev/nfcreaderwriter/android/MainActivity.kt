@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NdefMessage
+import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.MifareClassic
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import java.nio.charset.Charset
@@ -30,7 +32,7 @@ import kotlin.experimental.and
 
 class MainActivity : ComponentActivity() {
 
-    private var value: String = "nothing"
+    private var value = mutableStateOf("nothing")
     private var nfcAdapter: NfcAdapter? = null
 
     companion object {
@@ -58,7 +60,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Column {
                             Text(
-                                text = nfcAdapter.toString()
+                                text = "Nfc tag: ${value.value}"
                             )
                         }
                     }
@@ -119,6 +121,22 @@ class MainActivity : ComponentActivity() {
 
                 Log.d(TAG, "$stringBuilder")
             }
+
+            if (NfcAdapter.ACTION_NDEF_DISCOVERED == newIntent.action) {
+                intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)?.also { rawMessages ->
+                    val messages: List<NdefMessage> = rawMessages.map { it as NdefMessage }
+
+                    messages.forEach { message ->
+                        val records = message.records
+
+                        if (records != null && records.isNotEmpty()) {
+                            val messageFromRecord = records[0]
+                            val originalMessage = getTextFromNdefRecord(messageFromRecord)
+                            value.value = originalMessage ?: "nothing"
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -163,5 +181,19 @@ class MainActivity : ComponentActivity() {
             factor *= 256L
         }
         return result
+    }
+
+    private fun getTextFromNdefRecord(record: NdefRecord): String? {
+        val stringBuilder = StringBuilder()
+        return try {
+            val payload = record.payload
+            val textEncoding = if ((payload[0] and 0) == 0.toByte()) "UTF-8" else "UTF-16"
+            val languageSize = payload[0] and 63
+            val tagContent = String(payload, languageSize + 1, payload.size - languageSize - 1, Charset.forName(textEncoding))
+            tagContent
+        } catch (e: Exception) {
+            Log.e(TAG, "problem with convert message from tag")
+            null
+        }
     }
 }
