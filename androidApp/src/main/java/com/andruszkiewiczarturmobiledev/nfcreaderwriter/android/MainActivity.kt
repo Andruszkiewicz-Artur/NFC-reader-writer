@@ -1,44 +1,50 @@
 package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android
 
-import android.app.PendingIntent
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
-import android.content.IntentFilter
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.nfc.tech.IsoDep
 import android.nfc.tech.MifareClassic
 import android.nfc.tech.MifareUltralight
+import android.nfc.tech.Ndef
 import android.nfc.tech.NfcA
-import android.os.Build
+import android.nfc.tech.NfcB
+import android.nfc.tech.NfcF
+import android.nfc.tech.NfcV
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.read.comp.ReadViewPresentation
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.nio.charset.Charset
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.experimental.and
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 class MainActivity : ComponentActivity() {
 
-    private var value = mutableStateOf("nothing")
+    private var nfcState = MutableStateFlow<NFCState?>(null)
     private var nfcAdapter: NfcAdapter? = null
 
     companion object {
         val TAG = "MainActivity"
     }
 
+    @SuppressLint("StateFlowValueCalledInComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,18 +55,22 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyApplicationTheme() {
-                Surface {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                color = MaterialTheme.colorScheme.background
+                Surface() {
+                    Scaffold(
+                        topBar = {
+                            CenterAlignedTopAppBar(
+                                title = {
+                                    Text(text = "NFC App")
+                                }
                             )
-                    ) {
-                        Column {
-                            Text(
-                                text = "Nfc tag: ${value.value}"
+                        }
+                    ) { padding ->
+                        Box(
+                            modifier = Modifier
+                                .padding(padding)
+                        ) {
+                            ReadViewPresentation(
+                                state = nfcState.collectAsState().value
                             )
                         }
                     }
@@ -72,54 +82,88 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        Log.d(TAG, "intent: $intent")
-
-//        getIntent().let {
-//            val tag: NdefMessage? = it.getParcelableExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-//            Log.d(TAG, "intent inner: $it")
-//            Log.d(TAG, "tag: $tag")
-//        }
+        if (intent == null) nfcState.update { null }
 
         intent?.let { newIntent ->
+            nfcState.update { NFCState() }
             newIntent.getParcelableExtra<Tag?>(NfcAdapter.EXTRA_TAG)?.let { tag ->
-                val stringBuilder: StringBuilder = java.lang.StringBuilder()
                 val id = tag.id
 
-                stringBuilder.append("TAG ID: $id")
-                stringBuilder.append("TAG ID(hex): ${getHex(id)}\n")
-                stringBuilder.append("TAG ID(dec): ${getDec(id)}\n")
-                stringBuilder.append("TAG ID(reversed): ${getReversed(id)}\n")
-                stringBuilder.append("Technologies: ")
-                tag.techList.forEach { stringBuilder.append("$it, ") }
-                stringBuilder.append("\n")
+                nfcState.update { it?.copy(
+                    idTag = id.toHexString(),
+                    sn = convertToColonSeparated(tag.id.toHexString())
+                ) }
 
                 tag.techList.forEach { tech ->
-                    if (tech.equals(MifareClassic::class.java.name)) {
-                        stringBuilder.append("\n")
-                        val mifareTag: MifareClassic = MifareClassic.get(tag)
-                        val type : String
-                        if (mifareTag.getType() == MifareClassic.TYPE_CLASSIC) type = "Classic"
-                        else if (mifareTag.getType() == MifareClassic.TYPE_PLUS) type = "Plus"
-                        else if (mifareTag.getType() == MifareClassic.TYPE_PRO) type = "Pro"
-                        else type = "Unknown"
-                        stringBuilder.append("Mifare Classic type: $type \n")
-                        stringBuilder.append("Mifare size: ${mifareTag.size} bytes \n")
-                        stringBuilder.append("Mifare sectors: ${mifareTag.sectorCount} \n")
-                        stringBuilder.append("Mifare blocks: ${mifareTag.blockCount}")
-                    }
-                    if (tech.equals(MifareUltralight::class.java.name)) {
-                        stringBuilder.append('\n');
-                        val mifareUlTag : MifareUltralight = MifareUltralight.get(tag);
-                        val type : String
-                        if (mifareUlTag.getType() == MifareUltralight.TYPE_ULTRALIGHT) type = "Ultralight"
-                        else if (mifareUlTag.getType() == MifareUltralight.TYPE_ULTRALIGHT_C) type = "Ultralight C"
-                        else type = "Unkown"
-                        stringBuilder.append("Mifare Ultralight type: ");
-                        stringBuilder.append(type)
-                    }
+                    nfcState.update { it?.copy(
+                        techs = it.techs + tech.split(".").lastOrNull() + ", "
+                    ) }
                 }
 
-                Log.d(TAG, "$stringBuilder")
+                nfcState.update { it?.copy(
+                    techs = it.techs?.dropLast(2)?.replace("null", "")
+                ) }
+
+                tag.techList.forEach { tech ->
+                    if (tech.equals(NfcA::class.java.name)) {
+                        val nfcA = NfcA.get(tag)
+                        val sak = nfcA.sak.toHexString()
+                        val atqa = nfcA.atqa.toHexString()
+
+                        nfcState.update { it?.copy(
+                            sak = sak,
+                            atqa = atqa,
+                            tagKind = "ISO 14443-3A"
+                        ) }
+                    } else if (tech.equals(NfcB::class.java.name)) {
+                        val nfcB = NfcB.get(tag)
+
+                        nfcState.update { it?.copy(
+                            tagKind = "ISO 14443-3B"
+                        ) }
+                    } else if (tech.equals(NfcF::class.java.name)) {
+                        val nfcF = NfcF.get(tag)
+
+                        nfcState.update { it?.copy(
+                            tagKind = "JIS 6319-4",
+                            systemCode = nfcF.systemCode.toHexString()
+                        ) }
+                    } else if (tech.equals(NfcV::class.java.name)) {
+                        val nfcV = NfcV.get(tag)
+
+                        nfcState.update { it?.copy(
+                            tagKind = "ISO 15693",
+                            dsfId = nfcV.dsfId.toHexString()
+                        ) }
+                    } else if (tech.equals(IsoDep::class.java.name)) {
+                        val isoDep = IsoDep.get(tag)
+
+                        nfcState.update { it?.copy(
+                            tagKind = "ISO 14443-4"
+                        ) }
+                    } else if (tech.equals(Ndef::class.java.name)) {
+                        val ndef = Ndef.get(tag)
+
+                        nfcState.update { it?.copy(
+                            isWritable = ndef.isWritable,
+                            maxSizeStorage = ndef.maxSize.toString() + " bits",
+                            canSetOnlyToRead = ndef.canMakeReadOnly()
+                        ) }
+                    } else if (tech.equals(MifareClassic::class.java.name)) {
+                        val mifareTag = MifareClassic.get(tag)
+
+                        nfcState.update { it?.copy(
+                            dataFormat = MifareClassic::class.java.name.split(".").lastOrNull(),
+                            storage = "${mifareTag.sectorCount} bits",
+                        ) }
+                    } else if (tech.equals(MifareUltralight::class.java.name)) {
+                        val mifareUlTag = MifareUltralight.get(tag)
+
+                        nfcState.update { it?.copy(
+                            dataFormat = MifareUltralight::class.java.name.split(".").lastOrNull()
+                        ) }
+                    }
+                }
             }
 
             if (NfcAdapter.ACTION_NDEF_DISCOVERED == newIntent.action) {
@@ -132,68 +176,36 @@ class MainActivity : ComponentActivity() {
                         if (records != null && records.isNotEmpty()) {
                             val messageFromRecord = records[0]
                             val originalMessage = getTextFromNdefRecord(messageFromRecord)
-                            value.value = originalMessage ?: "nothing"
+                            nfcState.update { it?.copy(
+                                playText = originalMessage
+                            ) }
                         }
                     }
                 }
             }
-        }
-    }
 
-    private fun getDateTimeNow() : String { Log.d(TAG, "getDateTimeNow()")
-        val TIME_FORMAT : DateFormat = SimpleDateFormat.getDateTimeInstance()
-        val now : Date = Date()
-        Log.d(ContentValues.TAG,"getDateTimeNow() Return ${TIME_FORMAT.format(now)}")
-        return TIME_FORMAT.format(now)
-    }
-
-    private fun getHex(bytes : ByteArray) : String {
-        val sb = StringBuilder()
-        for (i in bytes.indices.reversed()) {
-            val b : Int = bytes[i].and(0xff.toByte()).toInt()
-            if (b < 0x10) sb.append('0')
-            sb.append(Integer.toHexString(b))
-            if (i > 0)
-                sb.append(" ")
+            Log.d(TAG, "state: ${nfcState.value}")
         }
-        return sb.toString()
-    }
-
-    private fun getDec(bytes : ByteArray) : Long {
-        Log.d(TAG, "getDec()")
-        var result : Long = 0
-        var factor : Long = 1
-        for (i in bytes.indices) {
-            val value : Long = bytes[i].and(0xffL.toByte()).toLong()
-            result += value * factor
-            factor *= 256L
-        }
-        return result
-    }
-
-    private fun getReversed(bytes : ByteArray) : Long {
-        Log.d(TAG, "getReversed()")
-        var result : Long = 0
-        var factor : Long = 1
-        for (i in bytes.indices.reversed()) {
-            val value = bytes[i].and(0xffL.toByte()).toLong()
-            result += value * factor
-            factor *= 256L
-        }
-        return result
     }
 
     private fun getTextFromNdefRecord(record: NdefRecord): String? {
-        val stringBuilder = StringBuilder()
         return try {
             val payload = record.payload
             val textEncoding = if ((payload[0] and 0) == 0.toByte()) "UTF-8" else "UTF-16"
             val languageSize = payload[0] and 63
             val tagContent = String(payload, languageSize + 1, payload.size - languageSize - 1, Charset.forName(textEncoding))
+            nfcState.update { it?.copy(
+                transformationFormat = textEncoding
+            ) }
             tagContent
         } catch (e: Exception) {
             Log.e(TAG, "problem with convert message from tag")
             null
         }
+    }
+
+    private fun convertToColonSeparated(input: String): String {
+        val chunks = input.chunked(2)
+        return chunks.joinToString(":").uppercase()
     }
 }
