@@ -7,7 +7,6 @@ data class NFCState(
     val sn: String? = null,
     val systemCode: String? = null,
     val dsfId: String? = null,
-    val transformationFormat: String? = null,
     val maxSizeStorage: String? = null,
     val atqa: String? = null,
     val sak: String? = null,
@@ -15,8 +14,6 @@ data class NFCState(
     val storage: String? = null,
     val canSetOnlyToRead: Boolean? = null,
     val isWritable: Boolean? = null,
-    val playText: String? = null,
-    val email: String? = null,
-    val link: String? = null,
-    val phoneNumber: String? = null
+    val message: String? = null,
+    val typeOfMessage: String? = null
 )

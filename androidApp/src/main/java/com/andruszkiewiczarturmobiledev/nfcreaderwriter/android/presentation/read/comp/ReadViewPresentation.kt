@@ -122,36 +122,9 @@ fun ReadViewPresentation(
                 )
 
                 RowViewInRead(
-                    imageVector = Icons.Filled.Keyboard,
-                    title = "Transformation type",
-                    content = state.transformationFormat
-                )
-
-                RowViewInRead(
                     imageVector = Icons.Default.ListAlt,
-                    title = "Text/Plain",
-                    content = state.playText,
-                    isLast = true
-                )
-
-                RowViewInRead(
-                    imageVector = Icons.Default.Link,
-                    title = "Link",
-                    content = state.link,
-                    isLast = true
-                )
-
-                RowViewInRead(
-                    imageVector = Icons.Default.Email,
-                    title = "Email",
-                    content = state.email,
-                    isLast = true
-                )
-
-                RowViewInRead(
-                    imageVector = Icons.Default.Phone,
-                    title = "Phone number",
-                    content = state.phoneNumber,
+                    title = state.typeOfMessage ?: "Message",
+                    content = state.message,
                     isLast = true
                 )
             }

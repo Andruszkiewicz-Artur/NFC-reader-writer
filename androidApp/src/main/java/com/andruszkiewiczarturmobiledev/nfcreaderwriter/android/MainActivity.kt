@@ -98,7 +98,10 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
 
-        nfcAdapter?.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, arrayOf(techListsArray))
+        val intent = Intent(this, this::class.java)
+        intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
+        nfcAdapter?.enableForegroundDispatch(this, pendingIntent, null, null)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -118,6 +121,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun processIntent(intent: Intent) {
+        Log.d(TAG, "Start processIntent")
+
         intent.let { newIntent ->
             nfcState.update { NFCState() }
             newIntent.getParcelableExtra<Tag?>(NfcAdapter.EXTRA_TAG)?.let { tag ->
@@ -185,6 +190,7 @@ class MainActivity : ComponentActivity() {
                         ) }
                     } else if (tech.equals(MifareClassic::class.java.name)) {
                         val mifareTag = MifareClassic.get(tag)
+                        Log.d(TAG, mifareTag.size.toString())
 
                         nfcState.update { it?.copy(
                             dataFormat = MifareClassic::class.java.name.split(".").lastOrNull(),
@@ -199,64 +205,21 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-
-            if (NfcAdapter.ACTION_NDEF_DISCOVERED == newIntent.action) {
-                intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)?.also { rawMessages ->
-                    val messages: List<NdefMessage> = rawMessages.map { it as NdefMessage }
-
-                    messages.forEach { message ->
-                        val records = message.records
-
-                        if (records != null && records.isNotEmpty()) {
-                            val messageFromRecord = records[0]
-                            val originalMessage = getTextFromNdefRecord(messageFromRecord)
-                            nfcState.update { it?.copy(
-                                playText = originalMessage
-                            ) }
-                        }
-                    }
-                }
-            }
-
-            Log.d(TAG, "state: ${nfcState.value}")
         }
 
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.action)) {
-            intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)?.also { rawMessages ->
-                for (rawMessage in rawMessages.map { it as NdefMessage }) {
-                    for (record in rawMessage.records) {
-                        if (record.tnf == NdefRecord.TNF_WELL_KNOWN && Arrays.equals(record.type, NdefRecord.RTD_URI)) {
-                            val uri = record.toUri()
-                            if ("tel".equals(uri.scheme)) {
-                                val phoneNumber = uri.schemeSpecificPart
-                                nfcState.update { it?.copy(
-                                    phoneNumber = phoneNumber
-                                ) }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
+            val ndefMessage = NdefRecord.createTextRecord("", intent.dataString)
 
-
-
-    private fun getTextFromNdefRecord(record: NdefRecord): String? {
-        return try {
-            val payload = record.payload
-            val textEncoding = if ((payload[0] and 0) == 0.toByte()) "UTF-8" else "UTF-16"
-            val languageSize = payload[0] and 63
-            val tagContent = String(payload, languageSize + 1, payload.size - languageSize - 1, Charset.forName(textEncoding))
             nfcState.update { it?.copy(
-                transformationFormat = textEncoding
+                storage = ndefMessage.toByteArray().size.toString(),
+                message = intent.dataString,
+                typeOfMessage = intent.type ?: intent.scheme
             ) }
-            tagContent
-        } catch (e: Exception) {
-            Log.e(TAG, "problem with convert message from tag")
-            null
         }
     }
+
+
+
 
     private fun convertToColonSeparated(input: String): String {
         val chunks = input.chunked(2)
