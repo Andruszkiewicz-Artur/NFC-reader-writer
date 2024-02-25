@@ -1,8 +1,10 @@
 package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Intent
+import android.content.IntentFilter
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
@@ -15,6 +17,7 @@ import android.nfc.tech.NfcA
 import android.nfc.tech.NfcB
 import android.nfc.tech.NfcF
 import android.nfc.tech.NfcV
+import android.nfc.tech.TagTechnology
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -31,27 +34,28 @@ import kotlinx.coroutines.flow.update
 import java.nio.charset.Charset
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.util.Arrays
 import java.util.Date
 import kotlin.experimental.and
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
+@SuppressLint("StateFlowValueCalledInComposition")
 class MainActivity : ComponentActivity() {
 
     private var nfcState = MutableStateFlow<NFCState?>(null)
     private var nfcAdapter: NfcAdapter? = null
+    private lateinit var pendingIntent: PendingIntent
+    private lateinit var intentFiltersArray: Array<IntentFilter>
+    private lateinit var techListsArray: Array<String>
 
     companion object {
         val TAG = "MainActivity"
     }
 
-    @SuppressLint("StateFlowValueCalledInComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
-        nfcAdapter?.let {
-            Log.d(TAG, "$it")
-        }
+        init()
 
         setContent {
             MyApplicationTheme() {
@@ -69,9 +73,15 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .padding(padding)
                         ) {
-                            ReadViewPresentation(
-                                state = nfcState.collectAsState().value
-                            )
+                            if (nfcAdapter != null) {
+                                if (nfcAdapter!!.isEnabled) {
+                                    ReadViewPresentation(state = nfcState.collectAsState().value)
+                                } else {
+                                    Text(text = "You need to turn the nfc on your phone")
+                                }
+                            } else {
+                                Text(text = "Your device don`t support nfc communication")
+                            }
                         }
                     }
                 }
@@ -79,12 +89,36 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        nfcAdapter?.disableForegroundDispatch(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        nfcAdapter?.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, arrayOf(techListsArray))
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        if (intent == null) nfcState.update { null }
+        if (intent != null) processIntent(intent)
+        else nfcState.update { null }
+    }
 
-        intent?.let { newIntent ->
+    private fun init() {
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        nfcAdapter?.let {
+            Log.d(TAG, "$it")
+        }
+
+        foreGroundDispatchSystem()
+    }
+
+    private fun processIntent(intent: Intent) {
+        intent.let { newIntent ->
             nfcState.update { NFCState() }
             newIntent.getParcelableExtra<Tag?>(NfcAdapter.EXTRA_TAG)?.let { tag ->
                 val id = tag.id
@@ -186,7 +220,27 @@ class MainActivity : ComponentActivity() {
 
             Log.d(TAG, "state: ${nfcState.value}")
         }
+
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.action)) {
+            intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)?.also { rawMessages ->
+                for (rawMessage in rawMessages.map { it as NdefMessage }) {
+                    for (record in rawMessage.records) {
+                        if (record.tnf == NdefRecord.TNF_WELL_KNOWN && Arrays.equals(record.type, NdefRecord.RTD_URI)) {
+                            val uri = record.toUri()
+                            if ("tel".equals(uri.scheme)) {
+                                val phoneNumber = uri.schemeSpecificPart
+                                nfcState.update { it?.copy(
+                                    phoneNumber = phoneNumber
+                                ) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+
+
 
     private fun getTextFromNdefRecord(record: NdefRecord): String? {
         return try {
@@ -207,5 +261,31 @@ class MainActivity : ComponentActivity() {
     private fun convertToColonSeparated(input: String): String {
         val chunks = input.chunked(2)
         return chunks.joinToString(":").uppercase()
+    }
+
+    private fun foreGroundDispatchSystem() {
+        val intent = Intent(this, javaClass).apply {
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
+
+        val ndef = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED).apply {
+            try {
+                addDataType("*/*")
+            } catch (e: IntentFilter.MalformedMimeTypeException) {
+                throw RuntimeException("fail", e)
+            }
+        }
+
+        intentFiltersArray = arrayOf(ndef)
+        techListsArray = arrayOf(
+            NfcA::class.java.name,
+            NfcB::class.java.name,
+            NfcF::class.java.name,
+            NfcV::class.java.name,
+            IsoDep::class.java.name,
+            MifareClassic::class.java.name,
+            MifareUltralight::class.java.name
+        )
     }
 }

@@ -16,4 +16,7 @@ data class NFCState(
     val canSetOnlyToRead: Boolean? = null,
     val isWritable: Boolean? = null,
     val playText: String? = null,
+    val email: String? = null,
+    val link: String? = null,
+    val phoneNumber: String? = null
 )
