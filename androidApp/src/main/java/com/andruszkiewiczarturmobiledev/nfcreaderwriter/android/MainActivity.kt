@@ -23,11 +23,15 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.read.comp.ReadViewPresentation
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.TopTabNav
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.navigation.NavHostMain
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -58,15 +62,21 @@ class MainActivity : ComponentActivity() {
         init()
 
         setContent {
+            val navHostController = rememberNavController()
+
             MyApplicationTheme() {
                 Surface() {
                     Scaffold(
                         topBar = {
-                            CenterAlignedTopAppBar(
-                                title = {
-                                    Text(text = "NFC App")
-                                }
-                            )
+                            Column {
+                                CenterAlignedTopAppBar(
+                                    title = {
+                                        Text(text = "NFC App")
+                                    }
+                                )
+
+                                TopTabNav(navHostController = navHostController)
+                            }
                         }
                     ) { padding ->
                         Box(
@@ -75,7 +85,10 @@ class MainActivity : ComponentActivity() {
                         ) {
                             if (nfcAdapter != null) {
                                 if (nfcAdapter!!.isEnabled) {
-                                    ReadViewPresentation(state = nfcState.collectAsState().value)
+                                    NavHostMain(
+                                        nfcState = nfcState.collectAsState().value,
+                                        navHostController = navHostController
+                                    )
                                 } else {
                                     Text(text = "You need to turn the nfc on your phone")
                                 }
