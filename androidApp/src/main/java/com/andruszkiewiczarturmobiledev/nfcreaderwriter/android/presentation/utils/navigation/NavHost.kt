@@ -12,7 +12,8 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.wri
 @Composable
 fun NavHostMain(
     navHostController: NavHostController,
-    nfcState: NFCState?
+    nfcState: NFCState?,
+    onClickSendMessage: (String) -> Unit
 ) {
 
     NavHost(
@@ -29,7 +30,9 @@ fun NavHostMain(
         composable(
             route = Screen.WritePresentation.route
         ) {
-            WritePresentation()
+            WritePresentation(
+                onClickSendMessage = onClickSendMessage
+            )
         }
     }
 }

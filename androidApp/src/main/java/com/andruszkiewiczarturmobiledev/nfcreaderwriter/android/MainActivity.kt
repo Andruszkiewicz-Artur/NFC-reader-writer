@@ -20,6 +20,7 @@ import android.nfc.tech.NfcV
 import android.nfc.tech.TagTechnology
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import androidx.navigation.compose.rememberNavController
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.read.comp.ReadViewPresentation
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.TopTabNav
@@ -40,6 +42,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Arrays
 import java.util.Date
+import java.util.Locale
 import kotlin.experimental.and
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
@@ -47,6 +50,7 @@ import kotlin.experimental.and
 class MainActivity : ComponentActivity() {
 
     private var nfcState = MutableStateFlow<NFCState?>(null)
+    private var writeNfcMessage = MutableStateFlow("")
     private var nfcAdapter: NfcAdapter? = null
     private lateinit var pendingIntent: PendingIntent
     private lateinit var intentFiltersArray: Array<IntentFilter>
@@ -87,7 +91,12 @@ class MainActivity : ComponentActivity() {
                                 if (nfcAdapter!!.isEnabled) {
                                     NavHostMain(
                                         nfcState = nfcState.collectAsState().value,
-                                        navHostController = navHostController
+                                        navHostController = navHostController,
+                                        onClickSendMessage = { message ->
+                                            Log.d(TAG, "message to send: $message")
+                                            writeNfcMessage.update { message }
+                                            Log.d(TAG, "message after update: ${writeNfcMessage.value}")
+                                        }
                                     )
                                 } else {
                                     Text(text = "You need to turn the nfc on your phone")
@@ -120,7 +129,10 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        if (intent != null) processIntent(intent)
+        if (intent != null) {
+            if (writeNfcMessage.value.isNotBlank()) writeNfcCard(intent)
+            else readNfcCard(intent)
+        }
         else nfcState.update { null }
     }
 
@@ -133,8 +145,30 @@ class MainActivity : ComponentActivity() {
         foreGroundDispatchSystem()
     }
 
-    private fun processIntent(intent: Intent) {
-        Log.d(TAG, "Start processIntent")
+    private fun writeNfcCard(intent: Intent) {
+        Log.d(TAG, "now work: writeNfcCart")
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
+            val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
+            val ndef = Ndef.get(tag)
+
+            if (ndef != null) {
+                val message = NdefMessage(arrayOf(NdefRecord.createMime(
+                    "plain/text",
+                    writeNfcMessage.value.toByteArray(Charset.forName("US-ASCII")))))
+
+                ndef.connect()
+                ndef.writeNdefMessage(message)
+                ndef.close()
+
+                Toast.makeText(this, "Dane zostały zapisane na karcie NFC.", Toast.LENGTH_SHORT).show()
+            }
+
+            writeNfcMessage.update { "" }
+        }
+    }
+
+    private fun readNfcCard(intent: Intent) {
+        Log.d(TAG, "now work: readNfcCard")
 
         intent.let { newIntent ->
             nfcState.update { NFCState() }
@@ -203,11 +237,9 @@ class MainActivity : ComponentActivity() {
                         ) }
                     } else if (tech.equals(MifareClassic::class.java.name)) {
                         val mifareTag = MifareClassic.get(tag)
-                        Log.d(TAG, mifareTag.size.toString())
 
                         nfcState.update { it?.copy(
-                            dataFormat = MifareClassic::class.java.name.split(".").lastOrNull(),
-                            storage = "${mifareTag.sectorCount} bits",
+                            dataFormat = MifareClassic::class.java.name.split(".").lastOrNull()
                         ) }
                     } else if (tech.equals(MifareUltralight::class.java.name)) {
                         val mifareUlTag = MifareUltralight.get(tag)
@@ -221,13 +253,30 @@ class MainActivity : ComponentActivity() {
         }
 
         if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
-            val ndefMessage = NdefRecord.createTextRecord("", intent.dataString)
+            Log.d(TAG, "Start reading message")
 
             nfcState.update { it?.copy(
-                storage = ndefMessage.toByteArray().size.toString(),
                 message = intent.dataString,
                 typeOfMessage = intent.type ?: intent.scheme
             ) }
+
+            intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)?.also { rawMessages ->
+                val messages: List<NdefMessage> = rawMessages.map { it as NdefMessage }
+
+                messages.forEach { message ->
+                    val records = message.records
+
+                    records.forEach { record ->
+                        val stringMessage = String(record.payload)
+                        val typeMessage = String(record.type)
+
+                        nfcState.update { it?.copy(
+                            message = stringMessage,
+                            typeOfMessage = typeMessage
+                        ) }
+                    }
+                }
+            }
         }
     }
 
