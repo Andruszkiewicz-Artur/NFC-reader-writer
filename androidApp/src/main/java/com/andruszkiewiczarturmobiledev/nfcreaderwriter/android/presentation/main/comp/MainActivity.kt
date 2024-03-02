@@ -1,8 +1,7 @@
-package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android
+package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.content.ContentValues
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NdefMessage
@@ -17,7 +16,6 @@ import android.nfc.tech.NfcA
 import android.nfc.tech.NfcB
 import android.nfc.tech.NfcF
 import android.nfc.tech.NfcV
-import android.nfc.tech.TagTechnology
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -29,28 +27,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import androidx.navigation.compose.rememberNavController
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.read.comp.ReadViewPresentation
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.MyApplicationTheme
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCReadState
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCWriteState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.TopTabNav
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.navigation.NavHostMain
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.nio.charset.Charset
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.Arrays
-import java.util.Date
-import java.util.Locale
-import kotlin.experimental.and
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @SuppressLint("StateFlowValueCalledInComposition")
 class MainActivity : ComponentActivity() {
 
-    private var nfcState = MutableStateFlow<NFCState?>(null)
-    private var writeNfcMessage = MutableStateFlow("")
+    private var readNfcState = MutableStateFlow<NFCReadState?>(null)
+    private var writeNfcState = MutableStateFlow(NFCWriteState())
     private var nfcAdapter: NfcAdapter? = null
     private lateinit var pendingIntent: PendingIntent
     private lateinit var intentFiltersArray: Array<IntentFilter>
@@ -90,12 +82,23 @@ class MainActivity : ComponentActivity() {
                             if (nfcAdapter != null) {
                                 if (nfcAdapter!!.isEnabled) {
                                     NavHostMain(
-                                        nfcState = nfcState.collectAsState().value,
+                                        nfcStateRead = readNfcState.collectAsState().value,
+                                        nfcWriteState = writeNfcState.collectAsState().value,
                                         navHostController = navHostController,
-                                        onClickSendMessage = { message ->
-                                            Log.d(TAG, "message to send: $message")
-                                            writeNfcMessage.update { message }
-                                            Log.d(TAG, "message after update: ${writeNfcMessage.value}")
+                                        onClickSendMessage = {
+                                            writeNfcState.update { it.copy(
+                                                isDialog = true
+                                            ) }
+                                        },
+                                        onClickDismissAlertDialog = {
+                                            writeNfcState.update { it.copy(
+                                                isDialog = false
+                                            ) }
+                                        },
+                                        enteredMessage = { message ->
+                                            writeNfcState.update { it.copy(
+                                                message = message
+                                            ) }
                                         }
                                     )
                                 } else {
@@ -130,10 +133,10 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
 
         if (intent != null) {
-            if (writeNfcMessage.value.isNotBlank()) writeNfcCard(intent)
+            if (writeNfcState.value.message.isNotBlank()) writeNfcCard(intent)
             else readNfcCard(intent)
         }
-        else nfcState.update { null }
+        else readNfcState.update { null }
     }
 
     private fun init() {
@@ -154,16 +157,17 @@ class MainActivity : ComponentActivity() {
             if (ndef != null) {
                 val message = NdefMessage(arrayOf(NdefRecord.createMime(
                     "plain/text",
-                    writeNfcMessage.value.toByteArray(Charset.forName("US-ASCII")))))
+                    writeNfcState.value.message.toByteArray(Charset.forName("US-ASCII")))))
 
                 ndef.connect()
                 ndef.writeNdefMessage(message)
                 ndef.close()
-
-                Toast.makeText(this, "Dane zostały zapisane na karcie NFC.", Toast.LENGTH_SHORT).show()
             }
 
-            writeNfcMessage.update { "" }
+            writeNfcState.update { it.copy(
+                message = "",
+                isDialog = false
+            ) }
         }
     }
 
@@ -171,22 +175,22 @@ class MainActivity : ComponentActivity() {
         Log.d(TAG, "now work: readNfcCard")
 
         intent.let { newIntent ->
-            nfcState.update { NFCState() }
+            readNfcState.update { NFCReadState() }
             newIntent.getParcelableExtra<Tag?>(NfcAdapter.EXTRA_TAG)?.let { tag ->
                 val id = tag.id
 
-                nfcState.update { it?.copy(
+                readNfcState.update { it?.copy(
                     idTag = id.toHexString(),
                     sn = convertToColonSeparated(tag.id.toHexString())
                 ) }
 
                 tag.techList.forEach { tech ->
-                    nfcState.update { it?.copy(
+                    readNfcState.update { it?.copy(
                         techs = it.techs + tech.split(".").lastOrNull() + ", "
                     ) }
                 }
 
-                nfcState.update { it?.copy(
+                readNfcState.update { it?.copy(
                     techs = it.techs?.dropLast(2)?.replace("null", "")
                 ) }
 
@@ -196,7 +200,7 @@ class MainActivity : ComponentActivity() {
                         val sak = nfcA.sak.toHexString()
                         val atqa = nfcA.atqa.toHexString()
 
-                        nfcState.update { it?.copy(
+                        readNfcState.update { it?.copy(
                             sak = sak,
                             atqa = atqa,
                             tagKind = "ISO 14443-3A"
@@ -204,33 +208,33 @@ class MainActivity : ComponentActivity() {
                     } else if (tech.equals(NfcB::class.java.name)) {
                         val nfcB = NfcB.get(tag)
 
-                        nfcState.update { it?.copy(
+                        readNfcState.update { it?.copy(
                             tagKind = "ISO 14443-3B"
                         ) }
                     } else if (tech.equals(NfcF::class.java.name)) {
                         val nfcF = NfcF.get(tag)
 
-                        nfcState.update { it?.copy(
+                        readNfcState.update { it?.copy(
                             tagKind = "JIS 6319-4",
                             systemCode = nfcF.systemCode.toHexString()
                         ) }
                     } else if (tech.equals(NfcV::class.java.name)) {
                         val nfcV = NfcV.get(tag)
 
-                        nfcState.update { it?.copy(
+                        readNfcState.update { it?.copy(
                             tagKind = "ISO 15693",
                             dsfId = nfcV.dsfId.toHexString()
                         ) }
                     } else if (tech.equals(IsoDep::class.java.name)) {
                         val isoDep = IsoDep.get(tag)
 
-                        nfcState.update { it?.copy(
+                        readNfcState.update { it?.copy(
                             tagKind = "ISO 14443-4"
                         ) }
                     } else if (tech.equals(Ndef::class.java.name)) {
                         val ndef = Ndef.get(tag)
 
-                        nfcState.update { it?.copy(
+                        readNfcState.update { it?.copy(
                             isWritable = ndef.isWritable,
                             maxSizeStorage = ndef.maxSize.toString() + " bits",
                             canSetOnlyToRead = ndef.canMakeReadOnly()
@@ -238,13 +242,13 @@ class MainActivity : ComponentActivity() {
                     } else if (tech.equals(MifareClassic::class.java.name)) {
                         val mifareTag = MifareClassic.get(tag)
 
-                        nfcState.update { it?.copy(
+                        readNfcState.update { it?.copy(
                             dataFormat = MifareClassic::class.java.name.split(".").lastOrNull()
                         ) }
                     } else if (tech.equals(MifareUltralight::class.java.name)) {
                         val mifareUlTag = MifareUltralight.get(tag)
 
-                        nfcState.update { it?.copy(
+                        readNfcState.update { it?.copy(
                             dataFormat = MifareUltralight::class.java.name.split(".").lastOrNull()
                         ) }
                     }
@@ -255,7 +259,7 @@ class MainActivity : ComponentActivity() {
         if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
             Log.d(TAG, "Start reading message")
 
-            nfcState.update { it?.copy(
+            readNfcState.update { it?.copy(
                 message = intent.dataString,
                 typeOfMessage = intent.type ?: intent.scheme
             ) }
@@ -270,7 +274,7 @@ class MainActivity : ComponentActivity() {
                         val stringMessage = String(record.payload)
                         val typeMessage = String(record.type)
 
-                        nfcState.update { it?.copy(
+                        readNfcState.update { it?.copy(
                             message = stringMessage,
                             typeOfMessage = typeMessage
                         ) }

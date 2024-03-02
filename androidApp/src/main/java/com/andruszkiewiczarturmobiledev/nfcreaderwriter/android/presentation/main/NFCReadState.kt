@@ -1,6 +1,6 @@
-package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android
+package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main
 
-data class NFCState(
+data class NFCReadState(
     val tagKind: String? = null,
     val idTag: String? = null,
     val techs: String? = null,

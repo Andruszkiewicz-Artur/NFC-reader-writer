@@ -1,38 +1,30 @@
 package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.read.comp
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Keyboard
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.RestorePage
 import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Web
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.Sell
-import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.NFCState
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCReadState
 
 @Composable
 fun ReadViewPresentation(
-    state: NFCState?
+    state: NFCReadState?
 ) {
     if (state == null) {
         Box(

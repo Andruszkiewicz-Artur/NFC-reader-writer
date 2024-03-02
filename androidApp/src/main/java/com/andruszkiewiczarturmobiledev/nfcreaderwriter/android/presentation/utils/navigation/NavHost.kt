@@ -4,16 +4,19 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.NFCState
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCReadState
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCWriteState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.read.comp.ReadViewPresentation
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.write.comp.WritePresentation
 
 @Composable
 fun NavHostMain(
     navHostController: NavHostController,
-    nfcState: NFCState?,
-    onClickSendMessage: (String) -> Unit
+    nfcStateRead: NFCReadState?,
+    nfcWriteState: NFCWriteState,
+    enteredMessage: (String) -> Unit,
+    onClickSendMessage: () -> Unit,
+    onClickDismissAlertDialog: () -> Unit
 ) {
 
     NavHost(
@@ -24,14 +27,17 @@ fun NavHostMain(
         composable(
             route = Screen.ReadPresentation.route
         ) {
-            ReadViewPresentation(state = nfcState)
+            ReadViewPresentation(state = nfcStateRead)
         }
 
         composable(
             route = Screen.WritePresentation.route
         ) {
             WritePresentation(
-                onClickSendMessage = onClickSendMessage
+                nfcWriteState = nfcWriteState,
+                enteredMessage = enteredMessage,
+                onClickSendMessage = onClickSendMessage,
+                onClickDismissAlertDialog = onClickDismissAlertDialog
             )
         }
     }

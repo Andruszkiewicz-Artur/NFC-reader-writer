@@ -14,27 +14,34 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCWriteState
 
 @Composable
 fun WritePresentation(
-    onClickSendMessage: (String) -> Unit
+    nfcWriteState: NFCWriteState,
+    enteredMessage: (String) -> Unit,
+    onClickSendMessage: () -> Unit,
+    onClickDismissAlertDialog: () -> Unit
 ) {
-    var message by remember { mutableStateOf("") }
     
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            
             OutlinedTextField(
-                value = message,
+                value = nfcWriteState.message,
                 onValueChange = {
-                    message = it
+                    enteredMessage(it)
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
@@ -42,11 +49,19 @@ fun WritePresentation(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            Button(onClick = { onClickSendMessage(message) }) {
-                Text(text = "Set Nfc Card")
+            Button(onClick = {
+                onClickSendMessage()
+            }) {
+                Text(text = "Set a value for the NFC card")
             }
         }
-        
+
+        SavingDialog(
+            isDialog = nfcWriteState.isDialog,
+            onClickDismissAlertDialog = {
+                onClickDismissAlertDialog()
+            }
+        )
     }
     
 }

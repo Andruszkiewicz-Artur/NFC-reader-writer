@@ -1,4 +1,4 @@
-package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android
+package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape

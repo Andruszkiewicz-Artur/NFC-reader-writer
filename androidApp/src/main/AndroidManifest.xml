@@ -10,7 +10,7 @@
         android:label="NFC"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".presentation.main.comp.MainActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
