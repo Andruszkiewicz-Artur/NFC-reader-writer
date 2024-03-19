@@ -1,5 +1,6 @@
 package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp
 
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -15,7 +16,8 @@ fun TopTabNav(
 ) {
     val screens = listOf(
         Screen.ReadPresentation,
-        Screen.WritePresentation
+        Screen.WritePresentation,
+        Screen.EmulatePresentation
     )
 
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
@@ -34,6 +36,14 @@ fun TopTabNav(
                      },
                      text = {
                          Text(text  = screen.name ?: "")
+                     },
+                     icon = {
+                         if (screen.icon != null) {
+                             Icon(
+                                 imageVector = screen.icon,
+                                 contentDescription = screen.name ?: ""
+                             )
+                         }
                      }
                  )
             }

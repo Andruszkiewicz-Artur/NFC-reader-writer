@@ -4,10 +4,13 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.nfc.cardemulation.HostApduService
 import android.nfc.tech.IsoDep
 import android.nfc.tech.MifareClassic
 import android.nfc.tech.MifareUltralight
@@ -18,7 +21,6 @@ import android.nfc.tech.NfcF
 import android.nfc.tech.NfcV
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -27,29 +29,64 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.constraintlayout.core.motion.utils.Utils
 import androidx.navigation.compose.rememberNavController
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.MyApplicationTheme
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCEmulateState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCReadState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCWriteState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.TopTabNav
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.navigation.NavHostMain
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.MyApplicationTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import java.nio.charset.Charset
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @SuppressLint("StateFlowValueCalledInComposition")
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
 
     private var readNfcState = MutableStateFlow<NFCReadState?>(null)
     private var writeNfcState = MutableStateFlow(NFCWriteState())
+    private var emulateNfcState = MutableStateFlow(NFCEmulateState())
     private var nfcAdapter: NfcAdapter? = null
+//    private val intent = Intent(this, HostApduService::class.java)
     private lateinit var pendingIntent: PendingIntent
     private lateinit var intentFiltersArray: Array<IntentFilter>
     private lateinit var techListsArray: Array<String>
 
     companion object {
         val TAG = "MainActivity"
+
+        private val HEX_CHARS = "0123456789ABCDEF"
+        fun hexStringToByteArray(data: String) : ByteArray {
+
+            val result = ByteArray(data.length / 2)
+
+            for (i in 0 until data.length step 2) {
+                val firstIndex = HEX_CHARS.indexOf(data[i]);
+                val secondIndex = HEX_CHARS.indexOf(data[i + 1]);
+
+                val octet = firstIndex.shl(4).or(secondIndex)
+                result.set(i.shr(1), octet.toByte())
+            }
+
+            return result
+        }
+
+        private val HEX_CHARS_ARRAY = "0123456789ABCDEF".toCharArray()
+        fun toHex(byteArray: ByteArray) : String {
+            val result = StringBuffer()
+
+            byteArray.forEach {
+                val octet = it.toInt()
+                val firstIndex = (octet and 0xF0).ushr(4)
+                val secondIndex = octet and 0x0F
+                result.append(HEX_CHARS_ARRAY[firstIndex])
+                result.append(HEX_CHARS_ARRAY[secondIndex])
+            }
+
+            return result.toString()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +121,7 @@ class MainActivity : ComponentActivity() {
                                     NavHostMain(
                                         nfcStateRead = readNfcState.collectAsState().value,
                                         nfcWriteState = writeNfcState.collectAsState().value,
+                                        nfcEmulateState = emulateNfcState.collectAsState().value,
                                         navHostController = navHostController,
                                         onClickSendMessage = {
                                             writeNfcState.update { it.copy(
@@ -98,6 +136,25 @@ class MainActivity : ComponentActivity() {
                                         enteredMessage = { message ->
                                             writeNfcState.update { it.copy(
                                                 message = message
+                                            ) }
+                                        },
+                                        enteredTag = { message ->
+                                            emulateNfcState.update { it.copy(
+                                                message = message
+                                            ) }
+                                        },
+                                        onClickEmulateCard = {
+//                                            val intent = Intent(this@MainActivity, kHostApduService::class.java)
+//                                            intent.putExtra("ndefMessage", emulateNfcState.value.message)
+//                                            startService(intent)
+
+                                            emulateNfcState.update { it.copy(
+                                                isDialog = true
+                                            ) }
+                                        },
+                                        onClickDismissEmulateAlertDialog = {
+                                            emulateNfcState.update { it.copy(
+                                                isDialog = false
                                             ) }
                                         }
                                     )
@@ -129,6 +186,15 @@ class MainActivity : ComponentActivity() {
         nfcAdapter?.enableForegroundDispatch(this, pendingIntent, null, null)
     }
 
+    override fun onTagDiscovered(tag: Tag?) {
+        val isoDep = IsoDep.get(tag)
+        isoDep.connect()
+        val response = isoDep.transceive(hexStringToByteArray(
+            "00A4040007A0000002471001"))
+        Log.d(TAG, "Card Response: ${response}")
+        isoDep.close()
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
@@ -148,6 +214,14 @@ class MainActivity : ComponentActivity() {
         foreGroundDispatchSystem()
     }
 
+    private fun checkNFCEnable(): Boolean {
+        return if (nfcAdapter == null) {
+            false
+        } else {
+            nfcAdapter?.isEnabled == true
+        }
+    }
+
     private fun writeNfcCard(intent: Intent) {
         Log.d(TAG, "now work: writeNfcCart")
         if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
@@ -155,9 +229,14 @@ class MainActivity : ComponentActivity() {
             val ndef = Ndef.get(tag)
 
             if (ndef != null) {
-                val message = NdefMessage(arrayOf(NdefRecord.createMime(
-                    "plain/text",
-                    writeNfcState.value.message.toByteArray(Charset.forName("US-ASCII")))))
+                val message = NdefMessage(
+                    arrayOf(
+                        NdefRecord.createMime(
+                            "plain/text",
+                            writeNfcState.value.message.toByteArray(Charset.forName("US-ASCII"))
+                        )
+                    )
+                )
 
                 ndef.connect()
                 ndef.writeNdefMessage(message)

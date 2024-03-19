@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.emulate.comp.EmulateCardNFCPresentation
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCEmulateState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCReadState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCWriteState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.read.comp.ReadViewPresentation
@@ -13,10 +15,16 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.wri
 fun NavHostMain(
     navHostController: NavHostController,
     nfcStateRead: NFCReadState?,
+
     nfcWriteState: NFCWriteState,
     enteredMessage: (String) -> Unit,
     onClickSendMessage: () -> Unit,
-    onClickDismissAlertDialog: () -> Unit
+    onClickDismissAlertDialog: () -> Unit,
+
+    nfcEmulateState: NFCEmulateState,
+    enteredTag: (String) -> Unit,
+    onClickEmulateCard: () -> Unit,
+    onClickDismissEmulateAlertDialog: () -> Unit
 ) {
 
     NavHost(
@@ -38,6 +46,17 @@ fun NavHostMain(
                 enteredMessage = enteredMessage,
                 onClickSendMessage = onClickSendMessage,
                 onClickDismissAlertDialog = onClickDismissAlertDialog
+            )
+        }
+
+        composable(
+            route = Screen.EmulatePresentation.route
+        ) {
+            EmulateCardNFCPresentation(
+                nfcEmulateState = nfcEmulateState,
+                enteredTag = enteredTag,
+                onClickEmulateCard = onClickEmulateCard,
+                onClickDismissEmulateAlertDialog = onClickDismissEmulateAlertDialog
             )
         }
     }

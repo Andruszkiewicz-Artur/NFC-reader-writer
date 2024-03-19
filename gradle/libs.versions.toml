@@ -21,6 +21,7 @@ compose-material-icons = { group = "androidx.compose.material", name = "material
 navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
 navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+androidx-constraintlayout-core = { group = "androidx.constraintlayout", name = "constraintlayout-core", version = "1.0.4" }
 
 
 [plugins]
