@@ -21,11 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCReadState
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp.MainViewModel
+import kotlinx.coroutines.flow.asStateFlow
 
 @Composable
 fun ReadViewPresentation(
-    state: NFCReadState?
+    viewModel: MainViewModel
 ) {
+    val state = viewModel.state.asStateFlow().value.readCardState
+
     if (state == null) {
         Box(
             contentAlignment = Alignment.Center,

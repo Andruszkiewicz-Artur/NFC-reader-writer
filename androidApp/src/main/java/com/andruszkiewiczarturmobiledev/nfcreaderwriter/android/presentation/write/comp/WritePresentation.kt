@@ -10,22 +10,20 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCWriteState
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainUiEvent
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp.MainViewModel
+import kotlinx.coroutines.flow.asStateFlow
 
 @Composable
 fun WritePresentation(
-    nfcWriteState: NFCWriteState,
-    enteredMessage: (String) -> Unit,
-    onClickSendMessage: () -> Unit,
-    onClickDismissAlertDialog: () -> Unit
+    viewModel: MainViewModel
 ) {
+    val state = viewModel.state.collectAsState().value
     
     Box(
         modifier = Modifier
@@ -39,9 +37,9 @@ fun WritePresentation(
             Spacer(modifier = Modifier.height(16.dp))
             
             OutlinedTextField(
-                value = nfcWriteState.message,
+                value = state.writeMessage,
                 onValueChange = {
-                    enteredMessage(it)
+                    viewModel.onEvent(MainUiEvent.EnteredWriteMessage(it))
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
@@ -50,18 +48,11 @@ fun WritePresentation(
             Spacer(modifier = Modifier.height(16.dp))
             
             Button(onClick = {
-                onClickSendMessage()
+                viewModel.onEvent(MainUiEvent.OnClickSetAlertDialog(Type.Write))
             }) {
                 Text(text = "Set a value for the NFC card")
             }
         }
-
-        SavingDialog(
-            isDialog = nfcWriteState.isDialog,
-            onClickDismissAlertDialog = {
-                onClickDismissAlertDialog()
-            }
-        )
     }
     
 }

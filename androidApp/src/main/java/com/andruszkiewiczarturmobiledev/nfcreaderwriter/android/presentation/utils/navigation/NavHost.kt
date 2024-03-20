@@ -8,23 +8,14 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.emu
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCEmulateState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCReadState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCWriteState
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp.MainViewModel
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.read.comp.ReadViewPresentation
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.write.comp.WritePresentation
 
 @Composable
 fun NavHostMain(
     navHostController: NavHostController,
-    nfcStateRead: NFCReadState?,
-
-    nfcWriteState: NFCWriteState,
-    enteredMessage: (String) -> Unit,
-    onClickSendMessage: () -> Unit,
-    onClickDismissAlertDialog: () -> Unit,
-
-    nfcEmulateState: NFCEmulateState,
-    enteredTag: (String) -> Unit,
-    onClickEmulateCard: () -> Unit,
-    onClickDismissEmulateAlertDialog: () -> Unit
+    viewModel: MainViewModel
 ) {
 
     NavHost(
@@ -35,17 +26,16 @@ fun NavHostMain(
         composable(
             route = Screen.ReadPresentation.route
         ) {
-            ReadViewPresentation(state = nfcStateRead)
+            ReadViewPresentation(
+                viewModel = viewModel
+            )
         }
 
         composable(
             route = Screen.WritePresentation.route
         ) {
             WritePresentation(
-                nfcWriteState = nfcWriteState,
-                enteredMessage = enteredMessage,
-                onClickSendMessage = onClickSendMessage,
-                onClickDismissAlertDialog = onClickDismissAlertDialog
+                viewModel = viewModel
             )
         }
 
@@ -53,10 +43,7 @@ fun NavHostMain(
             route = Screen.EmulatePresentation.route
         ) {
             EmulateCardNFCPresentation(
-                nfcEmulateState = nfcEmulateState,
-                enteredTag = enteredTag,
-                onClickEmulateCard = onClickEmulateCard,
-                onClickDismissEmulateAlertDialog = onClickDismissEmulateAlertDialog
+                viewModel = viewModel
             )
         }
     }

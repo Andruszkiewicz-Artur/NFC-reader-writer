@@ -13,17 +13,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCEmulateState
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCWriteState
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.write.comp.SavingDialog
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainUiEvent
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp.MainViewModel
+import kotlinx.coroutines.flow.asStateFlow
 
 @Composable
 fun EmulateCardNFCPresentation(
-    nfcEmulateState: NFCEmulateState,
-    enteredTag: (String) -> Unit,
-    onClickEmulateCard: () -> Unit,
-    onClickDismissEmulateAlertDialog: () -> Unit
+    viewModel: MainViewModel
 ) {
+    val state = viewModel.state.asStateFlow().value
 
     Box(
         modifier = Modifier
@@ -37,9 +36,9 @@ fun EmulateCardNFCPresentation(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = nfcEmulateState.message,
+                value = state.emulateMessage,
                 onValueChange = {
-                    enteredTag(it)
+                    viewModel.onEvent(MainUiEvent.EnteredEmulateCardMessage(it))
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
@@ -48,18 +47,11 @@ fun EmulateCardNFCPresentation(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
-                onClickEmulateCard()
+                viewModel.onEvent(MainUiEvent.OnClickSet(Type.Emulate))
             }) {
                 Text(text = "Set a value for the NFC card")
             }
         }
-
-        SavingDialog(
-            isDialog = nfcEmulateState.isDialog,
-            onClickDismissAlertDialog = {
-                onClickDismissEmulateAlertDialog()
-            }
-        )
     }
 
 }
