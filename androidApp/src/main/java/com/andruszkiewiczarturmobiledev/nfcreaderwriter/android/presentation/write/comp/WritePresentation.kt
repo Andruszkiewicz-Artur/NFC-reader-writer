@@ -14,10 +14,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainUiEvent
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp.MainViewModel
-import kotlinx.coroutines.flow.asStateFlow
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
 
 @Composable
 fun WritePresentation(
@@ -39,7 +38,7 @@ fun WritePresentation(
             OutlinedTextField(
                 value = state.writeMessage,
                 onValueChange = {
-                    viewModel.onEvent(MainUiEvent.EnteredWriteMessage(it))
+                    viewModel.onEvent(MainEvent.EnteredWriteMessage(it))
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
@@ -48,7 +47,7 @@ fun WritePresentation(
             Spacer(modifier = Modifier.height(16.dp))
             
             Button(onClick = {
-                viewModel.onEvent(MainUiEvent.OnClickSetAlertDialog(Type.Write))
+                viewModel.onEvent(MainEvent.OnClickSetAlertDialog(Type.Write))
             }) {
                 Text(text = "Set a value for the NFC card")
             }

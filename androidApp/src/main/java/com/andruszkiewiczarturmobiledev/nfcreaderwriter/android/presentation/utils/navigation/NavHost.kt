@@ -5,10 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.emulate.comp.EmulateCardNFCPresentation
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCEmulateState
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCReadState
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCWriteState
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp.MainViewModel
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.read.comp.ReadViewPresentation
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.write.comp.WritePresentation
 

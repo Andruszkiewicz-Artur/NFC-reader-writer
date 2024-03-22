@@ -10,19 +10,19 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainUiEvent
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp.MainViewModel
-import kotlinx.coroutines.flow.asStateFlow
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
 
 @Composable
 fun EmulateCardNFCPresentation(
     viewModel: MainViewModel
 ) {
-    val state = viewModel.state.asStateFlow().value
+    val state = viewModel.state.collectAsState().value
 
     Box(
         modifier = Modifier
@@ -38,7 +38,7 @@ fun EmulateCardNFCPresentation(
             OutlinedTextField(
                 value = state.emulateMessage,
                 onValueChange = {
-                    viewModel.onEvent(MainUiEvent.EnteredEmulateCardMessage(it))
+                    viewModel.onEvent(MainEvent.EnteredEmulateCardMessage(it))
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
@@ -47,7 +47,7 @@ fun EmulateCardNFCPresentation(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
-                viewModel.onEvent(MainUiEvent.OnClickSet(Type.Emulate))
+                viewModel.onEvent(MainEvent.EmulateNFCCard)
             }) {
                 Text(text = "Set a value for the NFC card")
             }
