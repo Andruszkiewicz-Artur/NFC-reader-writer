@@ -46,6 +46,12 @@ class MainViewModel(): ViewModel() {
                 ) }
             }
             is MainEvent.OnClickSetAlertDialog -> {
+                if (_state.value.typeOfDialog == Type.Emulate) {
+                    viewModelScope.launch {
+                        _sharedFlow.emit(MainUiEvent.StopEmulatingCard)
+                    }
+                }
+
                 _state.update { it.copy(
                     typeOfDialog = event.type
                 ) }

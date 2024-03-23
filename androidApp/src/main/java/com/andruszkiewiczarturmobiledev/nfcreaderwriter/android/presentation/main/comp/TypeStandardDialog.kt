@@ -1,20 +1,21 @@
-package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.write.comp
+package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 
 @Composable
-fun SavingDialog(
-    isDialog: Boolean,
-    onClickDismissAlertDialog: () -> Unit
+fun TypeSavingDialog(
+    type: Type?,
+    onClickDismissDialog: () -> Unit
 ) {
 
-    AnimatedVisibility(visible = isDialog) {
+    AnimatedVisibility(visible = type != null) {
         AlertDialog(
-            onDismissRequest = { onClickDismissAlertDialog() },
+            onDismissRequest = { onClickDismissDialog() },
             confirmButton = {},
             title = {
                 Text(
@@ -28,7 +29,7 @@ fun SavingDialog(
             },
             dismissButton = {
                 Button(onClick = {
-                    onClickDismissAlertDialog()
+                    onClickDismissDialog()
                 }) {
                     Text(
                         text = "Cancel"

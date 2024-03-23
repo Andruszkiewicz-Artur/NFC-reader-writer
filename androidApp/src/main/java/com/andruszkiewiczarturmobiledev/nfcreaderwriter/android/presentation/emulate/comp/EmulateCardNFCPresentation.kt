@@ -15,8 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainEvent
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 
 @Composable
 fun EmulateCardNFCPresentation(
@@ -48,6 +48,7 @@ fun EmulateCardNFCPresentation(
 
             Button(onClick = {
                 viewModel.onEvent(MainEvent.EmulateNFCCard)
+                viewModel.onEvent(MainEvent.OnClickSetAlertDialog(Type.Emulate))
             }) {
                 Text(text = "Set a value for the NFC card")
             }

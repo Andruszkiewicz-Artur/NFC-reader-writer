@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         state = viewModel.state.value
+        val intent = Intent(this@MainActivity, MyHostApduService::class.java)
 
         setContent {
             val navHostController = rememberNavController()
@@ -63,9 +64,11 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                 viewModel.sharedFlow.collectLatest { event ->
                     when (event) {
                         is MainUiEvent.EmulateCard -> {
-                            val intent = Intent(this@MainActivity, MyHostApduService::class.java)
                             intent.putExtra("ndefMessage", event.message)
                             startService(intent)
+                        }
+                        MainUiEvent.StopEmulatingCard -> {
+                            stopService(intent)
                         }
                     }
                 }
@@ -114,6 +117,13 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                     }
                 }
             }
+
+            TypeSavingDialog(
+                type = state.typeOfDialog,
+                onClickDismissDialog = {
+                    viewModel.onEvent(MainEvent.OnClickSetAlertDialog(null))
+                }
+            )
         }
 
         init()
