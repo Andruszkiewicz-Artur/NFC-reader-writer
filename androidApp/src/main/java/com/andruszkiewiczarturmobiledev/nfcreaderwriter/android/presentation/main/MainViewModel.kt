@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.nio.charset.Charset
+import java.util.Locale
 
 @OptIn(ExperimentalStdlibApi::class)
 class MainViewModel(): ViewModel() {
@@ -43,6 +44,18 @@ class MainViewModel(): ViewModel() {
             is MainEvent.EnteredWriteMessage -> {
                 _state.update { it.copy(
                     writeMessage = event.message
+                ) }
+            }
+            MainEvent.AddWriteMessage -> {
+                if (_state.value.writeMessage.isNotBlank())
+                    _state.update { it.copy(
+                        writeMessages = it.writeMessages + Pair(it.writeTypeMessage, it.writeMessage),
+                        writeMessage = ""
+                    ) }
+            }
+            is MainEvent.RemoveWriteMessage -> {
+                _state.update { it.copy(
+                    writeMessages = it.writeMessages.filter { message -> event.message != message}
                 ) }
             }
             is MainEvent.OnClickSetAlertDialog -> {
@@ -178,7 +191,9 @@ class MainViewModel(): ViewModel() {
                     val ndef = Ndef.get(tag)
 
                     if (ndef != null) {
-                        val message = NdefMessage(
+//                        val records = _state.value.writeMessages.map { (type, message) -> createTextRecord(type, message) }.toTypedArray()
+
+                        val messages = NdefMessage(
                             arrayOf(
                                 NdefRecord.createMime(
                                     "plain/text",
@@ -188,7 +203,7 @@ class MainViewModel(): ViewModel() {
                         )
 
                         ndef.connect()
-                        ndef.writeNdefMessage(message)
+                        ndef.writeNdefMessage(messages)
                         ndef.close()
                     }
 
@@ -222,5 +237,21 @@ class MainViewModel(): ViewModel() {
     private fun convertToColonSeparated(input: String): String {
         val chunks = input.chunked(2)
         return chunks.joinToString(":").uppercase()
+    }
+
+    private fun createTextRecord(mainType: String, value: String): NdefRecord {
+        return NdefRecord.createMime(
+            "plain/text",
+            _state.value.writeMessage.toByteArray(Charset.forName("US-ASCII"))
+        )
+
+//        Charset.forName("US-ASCII").let { usAscii ->
+//            NdefRecord(
+//                NdefRecord.TNF_MIME_MEDIA,
+//                mainType.toByteArray(usAscii),
+//                ByteArray(0),
+//                value.toByteArray(usAscii)
+//            )
+//        }
     }
 }

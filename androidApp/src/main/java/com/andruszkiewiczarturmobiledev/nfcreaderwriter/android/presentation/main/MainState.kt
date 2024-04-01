@@ -7,7 +7,9 @@ import android.nfc.NfcAdapter
 
 data class MainState(
     val readCardState: NFCReadState? = null,
+    val writeTypeMessage: String = "Plain/Text",
     val writeMessage: String = "",
+    val writeMessages: List<Pair<String, String>> = emptyList(),
     val emulateMessage: String = "",
     val typeOfDialog: Type? = null,
     val techList: List<String> = listOf(),
