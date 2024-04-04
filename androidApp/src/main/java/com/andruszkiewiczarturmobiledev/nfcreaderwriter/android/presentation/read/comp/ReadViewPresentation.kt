@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Folder
@@ -115,11 +116,13 @@ fun ReadViewPresentation(
                     title = "Can set only to read",
                     content = state.canSetOnlyToRead?.toString()
                 )
+            }
 
+            items(state.messages) { message ->
                 RowViewInRead(
                     imageVector = Icons.Default.ListAlt,
-                    title = state.typeOfMessage ?: "Message",
-                    content = state.message,
+                    title = message.first,
+                    content = message.second,
                     isLast = true
                 )
             }

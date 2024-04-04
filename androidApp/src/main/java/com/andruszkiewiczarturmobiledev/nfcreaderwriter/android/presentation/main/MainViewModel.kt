@@ -1,5 +1,6 @@
 package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main
 
+import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
@@ -101,90 +102,8 @@ class MainViewModel(): ViewModel() {
             }
             is MainEvent.ReadNFCCard -> {
                 val intent = event.intent
-                var readState = NFCReadState()
-
-                intent.let { newIntent ->
-                    newIntent.getParcelableExtra<Tag?>(NfcAdapter.EXTRA_TAG)?.let { tag ->
-                        val id = tag.id
-
-                        readState.idTag = id.toHexString()
-                        readState.sn = convertToColonSeparated(tag.id.toHexString())
-
-                        tag.techList.forEach { tech ->
-                            readState.techs = readState.techs + tech.split(".").lastOrNull() + ", "
-                        }
-
-                        readState.techs = readState.techs?.dropLast(2)?.replace("null", "")
-
-                        tag.techList.forEach { tech ->
-                            if (tech.equals(NfcA::class.java.name)) {
-                                val nfcA = NfcA.get(tag)
-                                val sak = nfcA.sak.toHexString()
-                                val atqa = nfcA.atqa.toHexString()
-
-                                readState.sak = sak
-                                readState.atqa = atqa
-                                readState.tagKind = "ISO 14443-3A"
-                            } else if (tech.equals(NfcB::class.java.name)) {
-                                val nfcB = NfcB.get(tag)
-
-                                readState.tagKind = "ISO 14443-3B"
-                            } else if (tech.equals(NfcF::class.java.name)) {
-                                val nfcF = NfcF.get(tag)
-
-                                readState.tagKind = "JIS 6319-4"
-                                readState.systemCode = nfcF.systemCode.toHexString()
-                            } else if (tech.equals(NfcV::class.java.name)) {
-                                val nfcV = NfcV.get(tag)
-
-                                readState.tagKind = "ISO 15693"
-                                readState.systemCode = nfcV.dsfId.toHexString()
-                            } else if (tech.equals(IsoDep::class.java.name)) {
-                                val isoDep = IsoDep.get(tag)
-
-                                readState.tagKind = "ISO 14443-4"
-                            } else if (tech.equals(Ndef::class.java.name)) {
-                                val ndef = Ndef.get(tag)
-
-                                readState.isWritable = ndef.isWritable
-                                readState.maxSizeStorage = ndef.maxSize.toString() + " bits"
-                                readState.canSetOnlyToRead = ndef.canMakeReadOnly()
-
-                            } else if (tech.equals(MifareClassic::class.java.name)) {
-                                val mifareTag = MifareClassic.get(tag)
-
-                                readState.dataFormat =
-                                    MifareClassic::class.java.name.split(".").lastOrNull()
-                            } else if (tech.equals(MifareUltralight::class.java.name)) {
-                                val mifareUlTag = MifareUltralight.get(tag)
-
-                                readState.dataFormat =
-                                    MifareUltralight::class.java.name.split(".").lastOrNull()
-                            }
-                        }
-                    }
-                }
-
-                if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
-                    readState.message = intent.dataString
-                    readState.typeOfMessage = intent.type ?: intent.scheme
-
-                    intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)?.also { rawMessages ->
-                        val messages: List<NdefMessage> = rawMessages.map { it as NdefMessage }
-
-                        messages.forEach { message ->
-                            val records = message.records
-
-                            records.forEach { record ->
-                                val stringMessage = String(record.payload)
-                                val typeMessage = String(record.type)
-
-                                readState.message = stringMessage
-                                readState.typeOfMessage = typeMessage
-                            }
-                        }
-                    }
-                }
+                val readState = readCardInfo(intent = intent)
+                readState.messages = readDataFromCard(intent)
 
                 onEvent(MainEvent.SetReadState(readState))
             }
@@ -214,8 +133,6 @@ class MainViewModel(): ViewModel() {
 
                         onEvent(MainEvent.EnteredWriteMessage(""))
                         onEvent(MainEvent.OnClickSetAlertDialog(null))
-                    } else {
-
                     }
                 }
             }
@@ -252,5 +169,97 @@ class MainViewModel(): ViewModel() {
             mainType,
             value.toByteArray(Charset.forName("US-ASCII"))
         )
+    }
+
+    private fun readDataFromCard(intent: Intent): List<Pair<String, String>> {
+        val messagesState = mutableListOf<Pair<String, String>>()
+        
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
+            intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)?.also { rawMessages ->
+                val messages: List<NdefMessage> = rawMessages.map { it as NdefMessage }
+
+                Log.d(TAG, "messages from read: $messages")
+                messages.forEach { message ->
+                    val records = message.records
+                    Log.d(TAG, "records from read: $records")
+
+                    records.forEach { record ->
+                        Log.d(TAG, "record from read: $record")
+                        val stringMessage = String(record.payload)
+                        val typeMessage = String(record.type)
+
+                        messagesState.add(Pair(typeMessage, stringMessage))
+                    }
+                }
+            }
+        }
+
+        return messagesState
+    }
+
+    private fun readCardInfo(readState: NFCReadState = NFCReadState(), intent: Intent): NFCReadState {
+        intent.let { newIntent ->
+            newIntent.getParcelableExtra<Tag?>(NfcAdapter.EXTRA_TAG)?.let { tag ->
+                val id = tag.id
+
+                readState.idTag = id.toHexString()
+                readState.sn = convertToColonSeparated(tag.id.toHexString())
+
+                tag.techList.forEach { tech ->
+                    readState.techs = readState.techs + tech.split(".").lastOrNull() + ", "
+                }
+
+                readState.techs = readState.techs?.dropLast(2)?.replace("null", "")
+
+                tag.techList.forEach { tech ->
+                    if (tech.equals(NfcA::class.java.name)) {
+                        val nfcA = NfcA.get(tag)
+                        val sak = nfcA.sak.toHexString()
+                        val atqa = nfcA.atqa.toHexString()
+
+                        readState.sak = sak
+                        readState.atqa = atqa
+                        readState.tagKind = "ISO 14443-3A"
+                    } else if (tech.equals(NfcB::class.java.name)) {
+                        val nfcB = NfcB.get(tag)
+
+                        readState.tagKind = "ISO 14443-3B"
+                    } else if (tech.equals(NfcF::class.java.name)) {
+                        val nfcF = NfcF.get(tag)
+
+                        readState.tagKind = "JIS 6319-4"
+                        readState.systemCode = nfcF.systemCode.toHexString()
+                    } else if (tech.equals(NfcV::class.java.name)) {
+                        val nfcV = NfcV.get(tag)
+
+                        readState.tagKind = "ISO 15693"
+                        readState.systemCode = nfcV.dsfId.toHexString()
+                    } else if (tech.equals(IsoDep::class.java.name)) {
+                        val isoDep = IsoDep.get(tag)
+
+                        readState.tagKind = "ISO 14443-4"
+                    } else if (tech.equals(Ndef::class.java.name)) {
+                        val ndef = Ndef.get(tag)
+
+                        readState.isWritable = ndef.isWritable
+                        readState.maxSizeStorage = ndef.maxSize.toString() + " bits"
+                        readState.canSetOnlyToRead = ndef.canMakeReadOnly()
+
+                    } else if (tech.equals(MifareClassic::class.java.name)) {
+                        val mifareTag = MifareClassic.get(tag)
+
+                        readState.dataFormat =
+                            MifareClassic::class.java.name.split(".").lastOrNull()
+                    } else if (tech.equals(MifareUltralight::class.java.name)) {
+                        val mifareUlTag = MifareUltralight.get(tag)
+
+                        readState.dataFormat =
+                            MifareUltralight::class.java.name.split(".").lastOrNull()
+                    }
+                }
+            }
+        }
+
+        return readState
     }
 }

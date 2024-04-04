@@ -32,6 +32,5 @@ data class NFCReadState(
     var storage: String? = null,
     var canSetOnlyToRead: Boolean? = null,
     var isWritable: Boolean? = null,
-    var message: String? = null,
-    var typeOfMessage: String? = null
+    var messages: List<Pair<String, String>> = emptyList()
 )
