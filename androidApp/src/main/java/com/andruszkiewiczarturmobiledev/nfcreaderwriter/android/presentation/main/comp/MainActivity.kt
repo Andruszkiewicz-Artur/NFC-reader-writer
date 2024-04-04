@@ -35,6 +35,7 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.mai
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainUiEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.TopTabNav
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.navigation.NavHostMain
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.MyApplicationTheme
@@ -144,6 +145,10 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
         state.nfcAdapter?.enableForegroundDispatch(this, pendingIntent, null, null)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
     override fun onTagDiscovered(tag: Tag?) {
         val isoDep = IsoDep.get(tag)
         isoDep.connect()
@@ -157,7 +162,7 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
         super.onNewIntent(intent)
 
         if (intent != null) {
-            if (state.writeMessage.isNotBlank()) viewModel.onEvent(MainEvent.WriteNFCCard(intent))
+            if (state.typeOfDialog == Type.Write) viewModel.onEvent(MainEvent.WriteNFCCard(intent))
             else viewModel.onEvent(MainEvent.ReadNFCCard(intent))
         }
         else viewModel.onEvent(MainEvent.SetReadState(null))

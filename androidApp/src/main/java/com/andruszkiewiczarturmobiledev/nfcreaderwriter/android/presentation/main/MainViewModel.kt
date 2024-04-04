@@ -12,6 +12,7 @@ import android.nfc.tech.NfcA
 import android.nfc.tech.NfcB
 import android.nfc.tech.NfcF
 import android.nfc.tech.NfcV
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,6 +34,10 @@ class MainViewModel(): ViewModel() {
     val sharedFlow = _sharedFlow.asSharedFlow()
 
     private val HEX_CHARS = "0123456789ABCDEF"
+
+    companion object {
+        private val TAG = "MainViewModel_TAG"
+    }
 
     fun onEvent(event: MainEvent) {
         when (event) {
@@ -190,25 +195,28 @@ class MainViewModel(): ViewModel() {
                     val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
                     val ndef = Ndef.get(tag)
 
-                    if (ndef != null) {
-//                        val records = _state.value.writeMessages.map { (type, message) -> createTextRecord(type, message) }.toTypedArray()
+                    Log.d(TAG, "ndef value: $ndef")
 
+                    if (ndef != null) {
+                        Log.d(TAG, "ndef isWritable: ${ndef.isWritable}")
+                        val records = _state.value.writeMessages.map { (type, message) -> createTextRecord(type, message) }.toTypedArray()
+
+                        Log.d(TAG, "records: $records")
                         val messages = NdefMessage(
-                            arrayOf(
-                                NdefRecord.createMime(
-                                    "plain/text",
-                                    _state.value.writeMessage.toByteArray(Charset.forName("US-ASCII"))
-                                )
-                            )
+                            records
                         )
+
+
 
                         ndef.connect()
                         ndef.writeNdefMessage(messages)
                         ndef.close()
-                    }
 
-                    onEvent(MainEvent.EnteredWriteMessage(""))
-                    onEvent(MainEvent.OnClickSetAlertDialog(null))
+                        onEvent(MainEvent.EnteredWriteMessage(""))
+                        onEvent(MainEvent.OnClickSetAlertDialog(null))
+                    } else {
+
+                    }
                 }
             }
             MainEvent.EmulateNFCCard -> {
@@ -241,17 +249,8 @@ class MainViewModel(): ViewModel() {
 
     private fun createTextRecord(mainType: String, value: String): NdefRecord {
         return NdefRecord.createMime(
-            "plain/text",
-            _state.value.writeMessage.toByteArray(Charset.forName("US-ASCII"))
+            mainType,
+            value.toByteArray(Charset.forName("US-ASCII"))
         )
-
-//        Charset.forName("US-ASCII").let { usAscii ->
-//            NdefRecord(
-//                NdefRecord.TNF_MIME_MEDIA,
-//                mainType.toByteArray(usAscii),
-//                ByteArray(0),
-//                value.toByteArray(usAscii)
-//            )
-//        }
     }
 }
