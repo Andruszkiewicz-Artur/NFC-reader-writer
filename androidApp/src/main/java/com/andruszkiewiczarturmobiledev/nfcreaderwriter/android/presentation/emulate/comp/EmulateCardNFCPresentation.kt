@@ -50,9 +50,7 @@ fun EmulateCardNFCPresentation(
                 onClickRow = {
                     viewModel.onEvent(MainEvent.ChooseEmulationMessage(message))
                 },
-                onClickRemove = {
-                    viewModel.onEvent(MainEvent.RemoveEmulateMessage(message))
-                }
+                onClickRemove = { viewModel.onEvent(MainEvent.ShowDeletedDialog(Triple(message.first, message.second, Type.Emulate))) }
             )
         }
     )

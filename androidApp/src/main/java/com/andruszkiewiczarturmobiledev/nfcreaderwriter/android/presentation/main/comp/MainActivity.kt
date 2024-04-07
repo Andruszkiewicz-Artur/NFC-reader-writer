@@ -15,6 +15,7 @@ import android.nfc.tech.NfcF
 import android.nfc.tech.NfcV
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -73,6 +74,9 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                         MainUiEvent.StopEmulatingCard -> {
                             stopService(intent)
                         }
+                        is MainUiEvent.Toast -> {
+                            Toast.makeText(applicationContext, event.message, Toast.LENGTH_LONG).show()
+                        }
                     }
                 }
             }
@@ -125,6 +129,20 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                 type = state.typeOfDialog,
                 onClickDismissDialog = {
                     viewModel.onEvent(MainEvent.OnClickSetAlertDialog(null))
+                }
+            )
+
+            DeleteDialog(
+                message = state.deletedMessage,
+                onClickDismissButton = {
+                    viewModel.onEvent(MainEvent.ShowDeletedDialog(null))
+                },
+                onClickConfirmButton = {
+                    if (state.deletedMessage?.third == Type.Emulate) {
+                        viewModel.onEvent(MainEvent.RemoveEmulateMessage(Pair(state.deletedMessage!!.first, state.deletedMessage!!.second)))
+                    } else if (state.deletedMessage?.third == Type.Write) {
+                        viewModel.onEvent(MainEvent.RemoveWriteMessage(Pair(state.deletedMessage!!.first, state.deletedMessage!!.second)))
+                    }
                 }
             )
         }

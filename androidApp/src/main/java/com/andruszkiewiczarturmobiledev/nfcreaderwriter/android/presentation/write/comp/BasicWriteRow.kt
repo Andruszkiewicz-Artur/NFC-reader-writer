@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,37 +29,29 @@ fun BasicWriteRow(
     onClickRemove: () -> Unit
 ) {
 
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Column {
+    ListItem(
+        headlineContent = {
             Text(
-                text = type,
-                fontWeight = FontWeight.Bold
+                text = type
             )
-
+        },
+        supportingContent = {
             Text(
                 text = message
             )
-        }
-
-        IconButton(onClick = { onClickRemove() }) {
-            Icon(
-                imageVector = Icons.Rounded.Remove,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp)
-            )
-        }
-    }
-
-    if (!isLast) {
-        HorizontalDivider(
-            modifier = Modifier
-                .padding(vertical = 8.dp)
-        )
-    }
-
+        },
+        trailingContent = {
+            IconButton(onClick = { onClickRemove() }) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+            }
+        },
+        shadowElevation = 8.dp,
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+    )
 }

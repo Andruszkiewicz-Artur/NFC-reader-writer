@@ -14,6 +14,7 @@ sealed class MainEvent {
     data class EnteredEmulateCardMessage(val message: String): MainEvent()
     data object AddEmulateMessage: MainEvent()
     data class RemoveEmulateMessage(val message: Pair<String, String>): MainEvent()
+    data class ShowDeletedDialog(val value: Triple<String, String, Type>?): MainEvent()
 
     data class SetNFCAdapter(val adapter: NfcAdapter): MainEvent()
     data class SetPendingIntent(val pendingIntent: PendingIntent): MainEvent()

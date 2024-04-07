@@ -39,6 +39,19 @@ class MainViewModel(): ViewModel() {
         private val TAG = "MainViewModel_TAG"
     }
 
+    init {
+        _state.update { it.copy(
+            emulateState = it.emulateState.copy(
+                messages = listOf(
+                    Pair("Plain/Text", "value1"),
+                    Pair("Plain/Text", "value2"),
+                    Pair("Plain/Text", "value3"),
+                    Pair("Plain/Text", "value4"),
+                )
+            )
+        ) }
+    }
+
     fun onEvent(event: MainEvent) {
         when (event) {
             is MainEvent.EnteredEmulateCardMessage -> {
@@ -56,19 +69,29 @@ class MainViewModel(): ViewModel() {
                 ) }
             }
             MainEvent.AddWriteMessage -> {
-                if (_state.value.writeState.message.isNotBlank())
-                    _state.update { it.copy(
-                        writeState = it.writeState.copy(
-                            messages = it.writeState.messages + Pair(it.writeState.type, it.writeState.message),
-                            message = ""
-                        )
-                    ) }
+                val innerState = _state.value.writeState
+
+                viewModelScope.launch {
+                    if (innerState.message.isBlank()) {
+                        _sharedFlow.emit(MainUiEvent.Toast("Field is empty!"))
+                    } else if (innerState.messages.contains(Pair(innerState.type, innerState.message))) {
+                        _sharedFlow.emit(MainUiEvent.Toast("You have this value already!"))
+                    } else {
+                        _state.update { it.copy(
+                            writeState = it.writeState.copy(
+                                messages = it.writeState.messages + Pair(it.writeState.type, it.writeState.message),
+                                message = ""
+                            )
+                        ) }
+                    }
+                }
             }
             is MainEvent.RemoveWriteMessage -> {
                 _state.update { it.copy(
                     writeState = it.writeState.copy(
                         messages = it.writeState.messages.filter { message -> event.message != message}
-                    )
+                    ),
+                    deletedMessage = null
                 ) }
             }
             is MainEvent.OnClickSetAlertDialog -> {
@@ -144,7 +167,7 @@ class MainViewModel(): ViewModel() {
             MainEvent.EmulateNFCCard -> {
                 viewModelScope.launch {
                     val message = _state.value.emulationChosen
-                    
+
                     if (message != null)
                         _sharedFlow.emit(MainUiEvent.EmulateCard(_state.value.emulationChosen!!.second))
                 }
@@ -154,21 +177,36 @@ class MainViewModel(): ViewModel() {
                     emulateState = it.emulateState.copy(
                         messages = it.emulateState.messages.filter { message -> event.message != message}
                     ),
-                    emulationChosen = if (event.message == it.emulationChosen) null else it.emulationChosen
+                    emulationChosen = if (event.message == it.emulationChosen) null else it.emulationChosen,
+                    deletedMessage = null
                 ) }
             }
             is MainEvent.AddEmulateMessage -> {
-                if (_state.value.emulateState.message.isNotBlank())
-                    _state.update { it.copy(
-                        emulateState = it.emulateState.copy(
-                            messages = it.emulateState.messages + Pair(it.emulateState.type, it.emulateState.message),
-                            message = ""
-                        )
-                    ) }
+                val innerState = _state.value.emulateState
+
+                viewModelScope.launch {
+                    if (innerState.message.isBlank()) {
+                        _sharedFlow.emit(MainUiEvent.Toast("Field is empty!"))
+                    } else if (innerState.messages.contains(Pair(innerState.type, innerState.message))) {
+                        _sharedFlow.emit(MainUiEvent.Toast("You have this value already!"))
+                    } else {
+                        _state.update { it.copy(
+                            emulateState = it.emulateState.copy(
+                                messages = it.emulateState.messages + Pair(it.emulateState.type, it.emulateState.message),
+                                message = ""
+                            )
+                        ) }
+                    }
+                }
             }
             is MainEvent.ChooseEmulationMessage -> {
                 _state.update { it.copy(
                     emulationChosen = event.message
+                ) }
+            }
+            is MainEvent.ShowDeletedDialog -> {
+                _state.update { it.copy(
+                    deletedMessage = event.value
                 ) }
             }
         }
