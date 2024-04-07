@@ -7,15 +7,20 @@ import android.nfc.NfcAdapter
 
 data class MainState(
     val readCardState: NFCReadState? = null,
-    val writeTypeMessage: String = "Plain/Text",
-    val writeMessage: String = "",
-    val writeMessages: List<Pair<String, String>> = emptyList(),
-    val emulateMessage: String = "",
+    val writeState: TagsValue = TagsValue(),
+    val emulateState: TagsValue = TagsValue(),
+    val emulationChosen: Pair<String, String>? = null,
     val typeOfDialog: Type? = null,
     val techList: List<String> = listOf(),
     val intentFilter: List<IntentFilter> = listOf(),
     val pendingIntent: PendingIntent? = null,
     val nfcAdapter: NfcAdapter? = null
+)
+
+data class TagsValue(
+    val message: String = "",
+    val type: String = "Plain/Text",
+    val messages: List<Pair<String, String>> = emptyList()
 )
 
 data class NFCReadState(
@@ -34,3 +39,7 @@ data class NFCReadState(
     var isWritable: Boolean? = null,
     var messages: List<Pair<String, String>> = emptyList()
 )
+
+enum class Type {
+    Write, Emulate
+}

@@ -30,6 +30,7 @@ class MyHostApduService : HostApduService() {
             if (innerIntent.hasExtra("ndefMessage")) {
                 val ndefMessage: NdefMessage? = getNdefMessage(innerIntent.getStringExtra("ndefMessage") ?: "")
 
+
                 if (ndefMessage != null) {
                     val nlen = ndefMessage.byteArrayLength
                     mNdefRecordFile = ByteArray(nlen + 2)

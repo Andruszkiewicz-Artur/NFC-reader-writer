@@ -12,6 +12,8 @@ sealed class MainEvent {
     data object AddWriteMessage: MainEvent()
     data class RemoveWriteMessage(val message: Pair<String, String>): MainEvent()
     data class EnteredEmulateCardMessage(val message: String): MainEvent()
+    data object AddEmulateMessage: MainEvent()
+    data class RemoveEmulateMessage(val message: Pair<String, String>): MainEvent()
 
     data class SetNFCAdapter(val adapter: NfcAdapter): MainEvent()
     data class SetPendingIntent(val pendingIntent: PendingIntent): MainEvent()
@@ -21,9 +23,5 @@ sealed class MainEvent {
     data class ReadNFCCard(val intent: Intent): MainEvent()
     data class WriteNFCCard(val intent: Intent): MainEvent()
     data object EmulateNFCCard: MainEvent()
-}
-
-enum class Type {
-    Write,
-    Emulate
+    data class ChooseEmulationMessage(val message: Pair<String, String>): MainEvent()
 }

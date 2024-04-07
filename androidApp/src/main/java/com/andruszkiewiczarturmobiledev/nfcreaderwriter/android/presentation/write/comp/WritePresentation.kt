@@ -9,13 +9,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.ScaffoldNFC
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.TextFieldNFCCard
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -38,68 +44,25 @@ fun WritePresentation(
     viewModel: MainViewModel
 ) {
     val state = viewModel.state.collectAsState().value
-    
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
-        floatingActionButton = {
-            AnimatedVisibility(visible = state.writeMessages.isNotEmpty()) {
-                Button(onClick = {
-                    viewModel.onEvent(MainEvent.OnClickSetAlertDialog(Type.Write))
-                }) {
-                    Text(text = "Set a value for the NFC card")
-                }
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-            ) {
-                item {
-                    Row {
-                        OutlinedTextField(
-                            value = state.writeMessage,
-                            onValueChange = {
-                                viewModel.onEvent(MainEvent.EnteredWriteMessage(it))
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                        )
 
-                        Spacer(modifier = Modifier.padding(16.dp))
-
-                        IconButton(onClick = { viewModel.onEvent(MainEvent.AddWriteMessage) }) {
-                            Icon(
-                                imageVector = Icons.Rounded.Add,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(30.dp)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                items(state.writeMessages) { message ->
-                    BasicWriteRow(
-                        type = message.first,
-                        message = message.second,
-                        isLast = state.writeMessages.last() == message,
-                        onClickRemove = { viewModel.onEvent(MainEvent.RemoveWriteMessage(message)) }
-                    )
-                }
-            }
+    ScaffoldNFC(
+        showFloatingButton = state.writeState.messages.isNotEmpty(),
+        onClickAddButton = { viewModel.onEvent(MainEvent.AddWriteMessage) },
+        textFloatingButton = "Save on NFC card",
+        iconFloatingButton = Icons.Rounded.Edit,
+        onClickFloatingButton = { viewModel.onEvent(MainEvent.OnClickSetAlertDialog(Type.Write)) },
+        textFieldValue = state.writeState.message,
+        textFieldPlaceholder = "Entered new tag...",
+        textFieldChangeValue = { viewModel.onEvent(MainEvent.EnteredWriteMessage(it)) },
+        messages = state.writeState.messages,
+        rowView = { message ->
+            BasicWriteRow(
+                type = message.first,
+                message = message.second,
+                isLast = state.writeState.messages.last() == message,
+                onClickRemove = { viewModel.onEvent(MainEvent.RemoveWriteMessage(message)) }
+            )
         }
-    }
+    )
     
 }

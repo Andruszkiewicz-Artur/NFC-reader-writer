@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,7 +51,7 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
     private lateinit var state: MainState
 
     companion object {
-        private val TAG = "MainActivity"
+        private val TAG = "MainActivity_TAG"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -160,6 +162,8 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+
+        Log.d(TAG, "on new Intent value in main: $intent")
 
         if (intent != null) {
             if (state.typeOfDialog == Type.Write) viewModel.onEvent(MainEvent.WriteNFCCard(intent))

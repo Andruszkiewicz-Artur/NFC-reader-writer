@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.nio.charset.Charset
-import java.util.Locale
 
 @OptIn(ExperimentalStdlibApi::class)
 class MainViewModel(): ViewModel() {
@@ -44,24 +43,32 @@ class MainViewModel(): ViewModel() {
         when (event) {
             is MainEvent.EnteredEmulateCardMessage -> {
                 _state.update { it.copy(
-                    emulateMessage = event.message
+                    emulateState = it.emulateState.copy(
+                        message = event.message
+                    )
                 ) }
             }
             is MainEvent.EnteredWriteMessage -> {
                 _state.update { it.copy(
-                    writeMessage = event.message
+                    writeState = it.writeState.copy(
+                        message = event.message
+                    )
                 ) }
             }
             MainEvent.AddWriteMessage -> {
-                if (_state.value.writeMessage.isNotBlank())
+                if (_state.value.writeState.message.isNotBlank())
                     _state.update { it.copy(
-                        writeMessages = it.writeMessages + Pair(it.writeTypeMessage, it.writeMessage),
-                        writeMessage = ""
+                        writeState = it.writeState.copy(
+                            messages = it.writeState.messages + Pair(it.writeState.type, it.writeState.message),
+                            message = ""
+                        )
                     ) }
             }
             is MainEvent.RemoveWriteMessage -> {
                 _state.update { it.copy(
-                    writeMessages = it.writeMessages.filter { message -> event.message != message}
+                    writeState = it.writeState.copy(
+                        messages = it.writeState.messages.filter { message -> event.message != message}
+                    )
                 ) }
             }
             is MainEvent.OnClickSetAlertDialog -> {
@@ -118,14 +125,12 @@ class MainViewModel(): ViewModel() {
 
                     if (ndef != null) {
                         Log.d(TAG, "ndef isWritable: ${ndef.isWritable}")
-                        val records = _state.value.writeMessages.map { (type, message) -> createTextRecord(type, message) }.toTypedArray()
+                        val records = _state.value.writeState.messages.map { (type, message) -> createTextRecord(type, message) }.toTypedArray()
 
                         Log.d(TAG, "records: $records")
                         val messages = NdefMessage(
                             records
                         )
-
-
 
                         ndef.connect()
                         ndef.writeNdefMessage(messages)
@@ -138,8 +143,33 @@ class MainViewModel(): ViewModel() {
             }
             MainEvent.EmulateNFCCard -> {
                 viewModelScope.launch {
-                    _sharedFlow.emit(MainUiEvent.EmulateCard(_state.value.emulateMessage))
+                    val message = _state.value.emulationChosen
+                    
+                    if (message != null)
+                        _sharedFlow.emit(MainUiEvent.EmulateCard(_state.value.emulationChosen!!.second))
                 }
+            }
+            is MainEvent.RemoveEmulateMessage -> {
+                _state.update { it.copy(
+                    emulateState = it.emulateState.copy(
+                        messages = it.emulateState.messages.filter { message -> event.message != message}
+                    ),
+                    emulationChosen = if (event.message == it.emulationChosen) null else it.emulationChosen
+                ) }
+            }
+            is MainEvent.AddEmulateMessage -> {
+                if (_state.value.emulateState.message.isNotBlank())
+                    _state.update { it.copy(
+                        emulateState = it.emulateState.copy(
+                            messages = it.emulateState.messages + Pair(it.emulateState.type, it.emulateState.message),
+                            message = ""
+                        )
+                    ) }
+            }
+            is MainEvent.ChooseEmulationMessage -> {
+                _state.update { it.copy(
+                    emulationChosen = event.message
+                ) }
             }
         }
     }
@@ -173,7 +203,7 @@ class MainViewModel(): ViewModel() {
 
     private fun readDataFromCard(intent: Intent): List<Pair<String, String>> {
         val messagesState = mutableListOf<Pair<String, String>>()
-        
+
         if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
             intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)?.also { rawMessages ->
                 val messages: List<NdefMessage> = rawMessages.map { it as NdefMessage }

@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CreditCard
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -17,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.ScaffoldNFC
 
 @Composable
 fun EmulateCardNFCPresentation(
@@ -24,35 +28,33 @@ fun EmulateCardNFCPresentation(
 ) {
     val state = viewModel.state.collectAsState().value
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = state.emulateMessage,
-                onValueChange = {
-                    viewModel.onEvent(MainEvent.EnteredEmulateCardMessage(it))
+    ScaffoldNFC(
+        showFloatingButton = state.emulationChosen != null,
+        onClickAddButton = { viewModel.onEvent(MainEvent.AddEmulateMessage) },
+        textFieldValue = state.emulateState.message,
+        textFloatingButton = "Emulate NFC Card",
+        iconFloatingButton = Icons.Rounded.CreditCard,
+        onClickFloatingButton = {
+            viewModel.onEvent(MainEvent.OnClickSetAlertDialog(Type.Emulate))
+            viewModel.onEvent(MainEvent.EmulateNFCCard)
+        },
+        textFieldPlaceholder = "Entered new tag...",
+        textFieldChangeValue = { viewModel.onEvent(MainEvent.EnteredEmulateCardMessage(it)) },
+        messages = state.emulateState.messages,
+        rowView = { message ->
+            BasicEmulateRow(
+                isChosen = message == state.emulationChosen,
+                type = message.first,
+                message = message.second,
+                isLast = state.emulateState.messages.last() == message,
+                onClickRow = {
+                    viewModel.onEvent(MainEvent.ChooseEmulationMessage(message))
                 },
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
+                onClickRemove = {
+                    viewModel.onEvent(MainEvent.RemoveEmulateMessage(message))
+                }
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(onClick = {
-                viewModel.onEvent(MainEvent.EmulateNFCCard)
-                viewModel.onEvent(MainEvent.OnClickSetAlertDialog(Type.Emulate))
-            }) {
-                Text(text = "Set a value for the NFC card")
-            }
         }
-    }
+    )
 
 }
