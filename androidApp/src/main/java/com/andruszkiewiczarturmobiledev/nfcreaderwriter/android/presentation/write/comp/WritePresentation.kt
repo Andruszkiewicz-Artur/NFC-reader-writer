@@ -32,12 +32,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.ScaffoldNFC
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.TextFieldNFCCard
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R.*
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -49,18 +51,17 @@ fun WritePresentation(
     ScaffoldNFC(
         showFloatingButton = state.writeState.messages.isNotEmpty(),
         onClickAddButton = { viewModel.onEvent(MainEvent.AddWriteMessage) },
-        textFloatingButton = "Save on NFC card",
+        textFloatingButton = stringResource(id = string.SaveOnNFCCard),
         iconFloatingButton = Icons.Rounded.Edit,
         onClickFloatingButton = { viewModel.onEvent(MainEvent.OnClickSetAlertDialog(Type.Write)) },
         textFieldValue = state.writeState.message,
-        textFieldPlaceholder = "Entered new tag...",
+        textFieldPlaceholder = stringResource(id = string.EnteredNewTag),
         textFieldChangeValue = { viewModel.onEvent(MainEvent.EnteredWriteMessage(it)) },
         messages = state.writeState.messages,
         rowView = { message ->
             BasicWriteRow(
                 type = message.first,
                 message = message.second,
-                isLast = state.writeState.messages.last() == message,
                 onClickRemove = { viewModel.onEvent(MainEvent.ShowDeletedDialog(Triple(message.first, message.second, Type.Write))) }
             )
         }

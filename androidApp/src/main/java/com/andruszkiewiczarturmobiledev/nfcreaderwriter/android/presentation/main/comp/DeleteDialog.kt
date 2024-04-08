@@ -9,7 +9,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R.*
 
 @Composable
 fun DeleteDialog(
@@ -25,19 +27,19 @@ fun DeleteDialog(
                     onClickConfirmButton()
                 }) {
                     Text(
-                        text = "Confirm"
+                        text = stringResource(id = string.Confirm)
                     )
                 }
             },
             title = {
                 Text(
-                    text = "Delete value"
+                    text = stringResource(id = string.DeleteValue)
                 )
             },
             text = {
                 Column {
                     Text(
-                        text = "Are you sure you wanna delete this value?"
+                        text = stringResource(id = string.SureToDelete)
                     )
                 }
             },
@@ -46,7 +48,7 @@ fun DeleteDialog(
                     onClickDismissButton()
                 }) {
                     Text(
-                        text = "Dismiss"
+                        text = stringResource(id = string.Dismiss)
                     )
                 }
             }

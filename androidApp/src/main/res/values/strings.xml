@@ -2,4 +2,31 @@
 <resources>
     <string name="servicedesc">ServiceDesc</string>
     <string name="aiddescription">Aiddescription</string>
+    <string name="NFCApp">NFC App</string>
+    <string name="DontSupportNFC">Your device don`t support nfc communication</string>
+    <string name="TurnOnNFC">You need to turn the nfc on your phone</string>
+    <string name="EnteredNewTag">Entered new tag...</string>
+    <string name="SaveOnNFCCard">Save on NFC card</string>
+    <string name="EmulateNFCCard">Emulate NFC Card</string>
+    <string name="Read">Read</string>
+    <string name="Write">Write</string>
+    <string name="Emulate">Emulate</string>
+    <string name="Confirm">Confirm</string>
+    <string name="DeleteValue">Delete value</string>
+    <string name="SureToDelete">Are you sure you wanna delete this value?</string>
+    <string name="WriteData">Writing Data</string>
+    <string name="BringTheNFCCArd">Bring the NFC card closer to your phone.</string>
+    <string name="BringTheNFCReader">Bring your phone closer to the NFC reader.</string>
+    <string name="Dismiss">Dismiss</string>
+    <string name="DontReadCardYet">Card not loaded yet!</string>
+    <string name="TagKind">Tag kind</string>
+    <string name="SystemCode">System Code</string>
+    <string name="Techs">Techs</string>
+    <string name="Storage">Storage</string>
+    <string name="MaxStorageSize">Max size of Storage</string>
+    <string name="FormatData">Data format</string>
+    <string name="IsWritable">Is writable</string>
+    <string name="CanSetReadOnly">Can set only to read</string>
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
 </resources>

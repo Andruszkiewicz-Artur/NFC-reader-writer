@@ -19,18 +19,16 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.compose.rememberNavController
@@ -41,10 +39,10 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.mai
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.BottomTabBar
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.TopTabNav
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.navigation.NavHostMain
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -90,7 +88,7 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                             Column {
                                 CenterAlignedTopAppBar(
                                     title = {
-                                        Text(text = "NFC App")
+                                        Text(text = stringResource(id = string.NFCApp))
                                     }
                                 )
                             }
@@ -107,13 +105,13 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                         ) {
                             if (state.nfcAdapter == null) {
                                 Text(
-                                    text = "Your device don`t support nfc communication",
+                                    text = stringResource(id = string.DontSupportNFC),
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center
                                 )
                             } else if (!state.nfcAdapter!!.isEnabled) {
                                 Text(
-                                    text = "You need to turn the nfc on your phone",
+                                    text = stringResource(id = string.TurnOnNFC),
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center
                                 )

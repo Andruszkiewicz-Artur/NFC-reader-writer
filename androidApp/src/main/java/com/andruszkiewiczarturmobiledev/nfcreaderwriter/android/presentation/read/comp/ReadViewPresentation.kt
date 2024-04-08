@@ -21,8 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R.*
 
 @Composable
 fun ReadViewPresentation(
@@ -36,7 +38,7 @@ fun ReadViewPresentation(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Text(text = "Don`t read card yet!")
+            Text(text = stringResource(id = string.DontReadCardYet))
         }
     } else {
         LazyColumn(
@@ -47,7 +49,7 @@ fun ReadViewPresentation(
             item {
                 RowViewInRead(
                     imageVector = Icons.Outlined.Sell,
-                    title = "Tag kind",
+                    title = stringResource(id = string.TagKind),
                     content = state.tagKind
                 )
 
@@ -59,13 +61,13 @@ fun ReadViewPresentation(
 
                 RowViewInRead(
                     imageVector = Icons.Outlined.VpnKey,
-                    title = "System Code",
+                    title = stringResource(id = string.SystemCode),
                     content = state.systemCode
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Filled.Build,
-                    title = "Techs",
+                    title = stringResource(id = string.Techs),
                     content = state.techs
                 )
 
@@ -89,32 +91,32 @@ fun ReadViewPresentation(
 
                 RowViewInRead(
                     imageVector = Icons.Filled.Storage,
-                    title = "Storage",
+                    title = stringResource(id = string.Storage),
                     content = state.storage
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Filled.Folder,
-                    title = "Max size of Storage",
+                    title = stringResource(id = string.MaxStorageSize),
                     content = state.maxSizeStorage
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Outlined.Info,
-                    title = "Format data",
+                    title = stringResource(id = string.FormatData),
                     content = state.dataFormat
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Filled.RestorePage,
-                    title = "Is writable",
-                    content = state.isWritable?.toString()
+                    title = stringResource(id = string.IsWritable),
+                    content = if (state.isWritable == true) stringResource(id = string.Yes) else if (state.isWritable == false) stringResource(id = string.No) else null
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Filled.Lock,
-                    title = "Can set only to read",
-                    content = state.canSetOnlyToRead?.toString()
+                    title = stringResource(id = string.CanSetReadOnly),
+                    content = if (state.canSetOnlyToRead == true) stringResource(id = string.Yes) else if (state.canSetOnlyToRead == false) stringResource(id = string.No) else null
                 )
             }
 

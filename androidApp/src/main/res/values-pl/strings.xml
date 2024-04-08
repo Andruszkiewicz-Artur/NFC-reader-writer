@@ -2,4 +2,31 @@
 <resources>
     <string name="servicedesc">ServiceDesc</string>
     <string name="aiddescription">Aiddescription</string>
+    <string name="NFCApp">Aplikacja NFC</string>
+    <string name="DontSupportNFC">Twój telefon nie obsługuje komunikacji NFC</string>
+    <string name="TurnOnNFC">Musisz włączyć NFC w swoim telefonie</string>
+    <string name="EnteredNewTag">Wprowadzono nowy tag...</string>
+    <string name="SaveOnNFCCard">Zapisz na karcie NFC</string>
+    <string name="EmulateNFCCard">Emuluj kartę NFC</string>
+    <string name="Read">Odczytaj</string>
+    <string name="Write">Zapisz</string>
+    <string name="Emulate">Emuluj</string>
+    <string name="Confirm">Potwierdź</string>
+    <string name="DeleteValue">Usuń wartość</string>
+    <string name="SureToDelete">Czy na pewno chcesz usunąć tę wartość?</string>
+    <string name="WriteData">Zapisywanie danych</string>
+    <string name="BringTheNFCCArd">Przybliż kartę NFC do telefonu.</string>
+    <string name="BringTheNFCReader">Przybliż telefon do czytnika nfc.</string>
+    <string name="Dismiss">Odrzuć</string>
+    <string name="DontReadCardYet">Nie wczytano jeszcze karty!</string>
+    <string name="TagKind">Rodzaj karty</string>
+    <string name="SystemCode">Kod systemowy</string>
+    <string name="Techs">Technologie</string>
+    <string name="Storage">Pamięć</string>
+    <string name="MaxStorageSize">Maksymalny rozmiar pamięci</string>
+    <string name="FormatData">Format danych</string>
+    <string name="IsWritable">Możliwość zapisu</string>
+    <string name="CanSetReadOnly">Możliwe ustawienie tylko do odczytu</string>
+    <string name="Yes">Tak</string>
+    <string name="No">Nie</string>
 </resources>

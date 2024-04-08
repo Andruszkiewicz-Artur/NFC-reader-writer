@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 fun BasicWriteRow(
     type: String,
     message: String,
-    isLast: Boolean,
     onClickRemove: () -> Unit
 ) {
 

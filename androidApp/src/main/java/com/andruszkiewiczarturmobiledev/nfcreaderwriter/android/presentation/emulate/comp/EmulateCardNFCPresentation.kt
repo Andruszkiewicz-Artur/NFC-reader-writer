@@ -16,11 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.ScaffoldNFC
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R.*
 
 @Composable
 fun EmulateCardNFCPresentation(
@@ -32,13 +34,13 @@ fun EmulateCardNFCPresentation(
         showFloatingButton = state.emulationChosen != null,
         onClickAddButton = { viewModel.onEvent(MainEvent.AddEmulateMessage) },
         textFieldValue = state.emulateState.message,
-        textFloatingButton = "Emulate NFC Card",
+        textFloatingButton = stringResource(id = string.EmulateNFCCard),
         iconFloatingButton = Icons.Rounded.CreditCard,
         onClickFloatingButton = {
             viewModel.onEvent(MainEvent.OnClickSetAlertDialog(Type.Emulate))
             viewModel.onEvent(MainEvent.EmulateNFCCard)
         },
-        textFieldPlaceholder = "Entered new tag...",
+        textFieldPlaceholder = stringResource(id = string.EnteredNewTag),
         textFieldChangeValue = { viewModel.onEvent(MainEvent.EnteredEmulateCardMessage(it)) },
         messages = state.emulateState.messages,
         rowView = { message ->

@@ -5,7 +5,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R.*
 
 @Composable
 fun TypeSavingDialog(
@@ -19,12 +21,12 @@ fun TypeSavingDialog(
             confirmButton = {},
             title = {
                 Text(
-                    text = "Writing Data"
+                    text = stringResource(id = string.WriteData)
                 )
             },
             text = {
                 Text(
-                    text = "Bring the NFC card closer to your phone"
+                    text = if (type == Type.Write) stringResource(id = string.BringTheNFCCArd) else stringResource(id = string.BringTheNFCReader)
                 )
             },
             dismissButton = {
@@ -32,7 +34,7 @@ fun TypeSavingDialog(
                     onClickDismissDialog()
                 }) {
                     Text(
-                        text = "Cancel"
+                        text = stringResource(id = string.Dismiss)
                     )
                 }
             }
