@@ -19,6 +19,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +40,7 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.mai
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainUiEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.BottomTabBar
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.TopTabNav
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.navigation.NavHostMain
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.MyApplicationTheme
@@ -91,9 +93,10 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                                         Text(text = "NFC App")
                                     }
                                 )
-
-                                TopTabNav(navHostController = navHostController)
                             }
+                        },
+                        bottomBar = {
+                            BottomTabBar(navHostController = navHostController)
                         }
                     ) { padding ->
                         Box(
@@ -123,28 +126,28 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                         }
                     }
                 }
-            }
 
-            TypeSavingDialog(
-                type = state.typeOfDialog,
-                onClickDismissDialog = {
-                    viewModel.onEvent(MainEvent.OnClickSetAlertDialog(null))
-                }
-            )
-
-            DeleteDialog(
-                message = state.deletedMessage,
-                onClickDismissButton = {
-                    viewModel.onEvent(MainEvent.ShowDeletedDialog(null))
-                },
-                onClickConfirmButton = {
-                    if (state.deletedMessage?.third == Type.Emulate) {
-                        viewModel.onEvent(MainEvent.RemoveEmulateMessage(Pair(state.deletedMessage!!.first, state.deletedMessage!!.second)))
-                    } else if (state.deletedMessage?.third == Type.Write) {
-                        viewModel.onEvent(MainEvent.RemoveWriteMessage(Pair(state.deletedMessage!!.first, state.deletedMessage!!.second)))
+                TypeSavingDialog(
+                    type = state.typeOfDialog,
+                    onClickDismissDialog = {
+                        viewModel.onEvent(MainEvent.OnClickSetAlertDialog(null))
                     }
-                }
-            )
+                )
+
+                DeleteDialog(
+                    message = state.deletedMessage,
+                    onClickDismissButton = {
+                        viewModel.onEvent(MainEvent.ShowDeletedDialog(null))
+                    },
+                    onClickConfirmButton = {
+                        if (state.deletedMessage?.third == Type.Emulate) {
+                            viewModel.onEvent(MainEvent.RemoveEmulateMessage(Pair(state.deletedMessage!!.first, state.deletedMessage!!.second)))
+                        } else if (state.deletedMessage?.third == Type.Write) {
+                            viewModel.onEvent(MainEvent.RemoveWriteMessage(Pair(state.deletedMessage!!.first, state.deletedMessage!!.second)))
+                        }
+                    }
+                )
+            }
         }
 
         init()

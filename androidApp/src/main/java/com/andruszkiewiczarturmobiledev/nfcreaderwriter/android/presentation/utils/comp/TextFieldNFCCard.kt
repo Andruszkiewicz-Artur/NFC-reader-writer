@@ -15,6 +15,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,6 +32,8 @@ fun TextFieldNFCCard(
     imeAction: ImeAction = ImeAction.Done,
     modifier: Modifier = Modifier
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     OutlinedTextField(
         placeholder = {
             Text(text = placeHolder)
@@ -52,7 +55,10 @@ fun TextFieldNFCCard(
             imeAction = imeAction
         ),
         keyboardActions = KeyboardActions(
-            onDone = { onClickPlus() }
+            onDone = {
+                onClickPlus()
+                keyboardController?.hide()
+            }
         ),
         modifier = modifier
             .fillMaxWidth()
