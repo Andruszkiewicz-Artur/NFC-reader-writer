@@ -11,6 +11,7 @@ data class MainState(
     val emulateState: TagsValue = TagsValue(),
     val emulationChosen: Pair<String, String>? = null,
     val typeOfDialog: Type? = null,
+    val isPresentedInfoDialog: Boolean = false,
     val deletedMessage: Triple<String, String, Type>? = null,
     val techList: List<String> = listOf(),
     val intentFilter: List<IntentFilter> = listOf(),

@@ -25,4 +25,5 @@ sealed class MainEvent {
     data class WriteNFCCard(val intent: Intent): MainEvent()
     data object EmulateNFCCard: MainEvent()
     data class ChooseEmulationMessage(val message: Pair<String, String>): MainEvent()
+    data class ChangeStateOfInfoDialog(val isPresented: Boolean): MainEvent()
 }

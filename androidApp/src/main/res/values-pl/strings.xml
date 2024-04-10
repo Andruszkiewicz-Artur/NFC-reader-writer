@@ -29,4 +29,23 @@
     <string name="CanSetReadOnly">Możliwe ustawienie tylko do odczytu</string>
     <string name="Yes">Tak</string>
     <string name="No">Nie</string>
+    <string name="Info">Informacje</string>
+    <string name="ReadView">Widok odczytywania</string>
+    <string name="WriteView">Widok zapisywania</string>
+    <string name="EmulateView">Widok emulowania</string>
+    <string name="ReadInformation">Widok odczytywania służy do sprawdzenia informacji przechowywanych na karcie oraz wyświetlenia informacji o karcie. Aby z niego skorzystać, wykonaj następujące kroki:</string>
+    <string name="ReadInformation1Step">Umieść kartę NFC na swoim telefonie.</string>
+    <string name="WriteInformation">Widok zapisywania służy do nadpisywania zawartości karty NFC. Nadpisywanie działa tylko na kartach, które posiadają tę opcję. Aby sprawdzić, czy możesz zapisywać wartości na karcie, sprawdź to w widoku odczytywania, a następnie znajdź pole `Możliwość zapisu`. Możesz dodać kilka wartości do zapisu, ale zależy to od pojemności karty NFC. Możesz to sprawdzić w widoku odczytu w polu `Maksymalny rozmiar pamięci`. Aby korzystać z tej funkcji, wykonaj następujące kroki:</string>
+    <string name="WriteInformation1Step">Wybierz, jakie dane chcesz zapisać.</string>
+    <string name="WriteInformation2Step">Wprowadź dane w odpowiednie pola tekstowe.</string>
+    <string name="WriteInformation3Step">Dodaj za pomocą przycisku.</string>
+    <string name="WriteInformation4Step">Naciśnij przycisk `Zapisz na karcie NFC`.</string>
+    <string name="WriteInformation5Step">Przyłóż kartę, aż widoczne pole zniknie.</string>
+    <string name="EmulateInformation">Widok emulowania służy do używania telefonu jako karty NFC, dzięki czemu użytkownik może przesłać swoją wiadomość, jakby używał fizycznej karty. Maksymalna liczba tagów, które użytkownik może przesłać jednocześnie, to jeden. Aby korzystać z tej funkcji, wykonaj następujące kroki:</string>
+    <string name="EmulateInformation1Step">Wybierz, jakie dane chcesz zapisać.</string>
+    <string name="EmulateInformation2Step">Wprowadź dane w odpowiednie pola tekstowe.</string>
+    <string name="EmulateInformation3Step">Dodaj za pomocą przycisku.</string>
+    <string name="EmulateInformation4Step">Wybierz, którą wartość chcesz emulować.</string>
+    <string name="EmulateInformation5Step">Naciśnij przycisk `Emuluj kartę NFC`.</string>
+    <string name="EmulateInformation6Step">Przyłóż urządzenie mobilne do urządzenia lub czytnika kart NFC.</string>
 </resources>

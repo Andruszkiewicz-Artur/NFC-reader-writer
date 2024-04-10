@@ -39,19 +39,6 @@ class MainViewModel(): ViewModel() {
         private val TAG = "MainViewModel_TAG"
     }
 
-    init {
-        _state.update { it.copy(
-            emulateState = it.emulateState.copy(
-                messages = listOf(
-                    Pair("Plain/Text", "value1"),
-                    Pair("Plain/Text", "value2"),
-                    Pair("Plain/Text", "value3"),
-                    Pair("Plain/Text", "value4"),
-                )
-            )
-        ) }
-    }
-
     fun onEvent(event: MainEvent) {
         when (event) {
             is MainEvent.EnteredEmulateCardMessage -> {
@@ -207,6 +194,11 @@ class MainViewModel(): ViewModel() {
             is MainEvent.ShowDeletedDialog -> {
                 _state.update { it.copy(
                     deletedMessage = event.value
+                ) }
+            }
+            is MainEvent.ChangeStateOfInfoDialog -> {
+                _state.update { it.copy(
+                    isPresentedInfoDialog = event.isPresented
                 ) }
             }
         }

@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -89,6 +91,14 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                                 CenterAlignedTopAppBar(
                                     title = {
                                         Text(text = stringResource(id = string.NFCApp))
+                                    },
+                                    actions = {
+                                        IconButton(onClick = { viewModel.onEvent(MainEvent.ChangeStateOfInfoDialog(true)) }) {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Info,
+                                                contentDescription = null
+                                            )
+                                        }
                                     }
                                 )
                             }
@@ -144,6 +154,11 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                             viewModel.onEvent(MainEvent.RemoveWriteMessage(Pair(state.deletedMessage!!.first, state.deletedMessage!!.second)))
                         }
                     }
+                )
+
+                InfoDialog(
+                    isPresented = state.isPresentedInfoDialog,
+                    onClickDismiss = { viewModel.onEvent(MainEvent.ChangeStateOfInfoDialog(false)) }
                 )
             }
         }

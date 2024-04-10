@@ -30,4 +30,23 @@
     <string name="CanSetReadOnly">Can set only to read</string>
     <string name="Yes">Yes</string>
     <string name="No">No</string>
+    <string name="Info">Info</string>
+    <string name="ReadView">Read View</string>
+    <string name="WriteView">Write View</string>
+    <string name="EmulateView">Emulate View</string>
+    <string name="ReadInformation">The reading view is used to check what information the card stores and displays information about the card. To use this you need to:</string>
+    <string name="ReadInformation1Step">Place the NFC card on your phone.</string>
+    <string name="WriteInformation">The saving view is used to overwrite the contents of the NFC card. Overwriting only works on cards that have this option. To check if you can write values to the card, check it in the reading window and then find the `Is writable` field. It is possible to add several values to the record, but it depends on the capacity of the NFC card, you can check it in the card reading in the `Max size of Storage` field. To use this function you must:</string>
+    <string name="WriteInformation1Step">Select what data you want to save.</string>
+    <string name="WriteInformation2Step">Enter the data in the appropriate text fields.</string>
+    <string name="WriteInformation3Step">Add using the button.</string>
+    <string name="WriteInformation4Step">Press the `Save on NFC card` button.</string>
+    <string name="WriteInformation5Step">Touch the card until the visible field disappears.</string>
+    <string name="EmulateInformation">The emulate view is used to use the phone as an NFC card, thanks to which the user is able to transfer his message as if he were using a physical card. The maximum number of tags that a user can upload at one time is one. To use this function you must:</string>
+    <string name="EmulateInformation1Step">Select what data you want to save.</string>
+    <string name="EmulateInformation2Step">Enter the data in the appropriate text fields.</string>
+    <string name="EmulateInformation3Step">Add using the button.</string>
+    <string name="EmulateInformation4Step">Select which value the user wants to emulate.</string>
+    <string name="EmulateInformation5Step">Press the `Emulate NFC Card` button.</string>
+    <string name="EmulateInformation6Step">Touch your mobile device to the NFC device or card reader.</string>
 </resources>
