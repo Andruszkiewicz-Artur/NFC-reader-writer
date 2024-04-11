@@ -10,11 +10,11 @@ sealed class MainEvent {
 
     data class EnteredWriteMessage(val message: String): MainEvent()
     data object AddWriteMessage: MainEvent()
-    data class RemoveWriteMessage(val message: Pair<String, String>): MainEvent()
+    data class RemoveWriteMessage(val value: TagValue): MainEvent()
     data class EnteredEmulateCardMessage(val message: String): MainEvent()
     data object AddEmulateMessage: MainEvent()
-    data class RemoveEmulateMessage(val message: Pair<String, String>): MainEvent()
-    data class ShowDeletedDialog(val value: Triple<String, String, Type>?): MainEvent()
+    data class RemoveEmulateMessage(val value: TagValue): MainEvent()
+    data class ShowDeletedDialog(val value: TagValue?, val type: Type?): MainEvent()
 
     data class SetNFCAdapter(val adapter: NfcAdapter): MainEvent()
     data class SetPendingIntent(val pendingIntent: PendingIntent): MainEvent()
@@ -24,6 +24,7 @@ sealed class MainEvent {
     data class ReadNFCCard(val intent: Intent): MainEvent()
     data class WriteNFCCard(val intent: Intent): MainEvent()
     data object EmulateNFCCard: MainEvent()
-    data class ChooseEmulationMessage(val message: Pair<String, String>): MainEvent()
+    data class ChooseEmulationMessage(val value: TagValue): MainEvent()
     data class ChangeStateOfInfoDialog(val isPresented: Boolean): MainEvent()
+    data class SetDataType(val value: TypeData, val valueType: Int, val type: Type): MainEvent()
 }

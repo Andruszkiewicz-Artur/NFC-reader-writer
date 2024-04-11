@@ -49,20 +49,24 @@ fun WritePresentation(
     val state = viewModel.state.collectAsState().value
 
     ScaffoldNFC(
-        showFloatingButton = state.writeState.messages.isNotEmpty(),
+        showFloatingButton = state.writeStateList.isNotEmpty(),
         onClickAddButton = { viewModel.onEvent(MainEvent.AddWriteMessage) },
         textFloatingButton = stringResource(id = string.SaveOnNFCCard),
         iconFloatingButton = Icons.Rounded.Edit,
         onClickFloatingButton = { viewModel.onEvent(MainEvent.OnClickSetAlertDialog(Type.Write)) },
-        textFieldValue = state.writeState.message,
+        tagState = state.writeState,
         textFieldPlaceholder = stringResource(id = string.EnteredNewTag),
         textFieldChangeValue = { viewModel.onEvent(MainEvent.EnteredWriteMessage(it)) },
-        messages = state.writeState.messages,
+        messages = state.writeStateList,
+        types = state.typesOfData,
+        onChangeTypeValue = { typeValue ->
+            viewModel.onEvent(MainEvent.SetDataType(typeValue.type, typeValue.name, Type.Write))
+        },
         rowView = { message ->
             BasicWriteRow(
-                type = message.first,
-                message = message.second,
-                onClickRemove = { viewModel.onEvent(MainEvent.ShowDeletedDialog(Triple(message.first, message.second, Type.Write))) }
+                type = stringResource(id = message.typeValue),
+                message = message.message,
+                onClickRemove = { viewModel.onEvent(MainEvent.ShowDeletedDialog(message, Type.Write)) }
             )
         }
     )

@@ -145,13 +145,13 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                 DeleteDialog(
                     message = state.deletedMessage,
                     onClickDismissButton = {
-                        viewModel.onEvent(MainEvent.ShowDeletedDialog(null))
+                        viewModel.onEvent(MainEvent.ShowDeletedDialog(null, null))
                     },
                     onClickConfirmButton = {
-                        if (state.deletedMessage?.third == Type.Emulate) {
-                            viewModel.onEvent(MainEvent.RemoveEmulateMessage(Pair(state.deletedMessage!!.first, state.deletedMessage!!.second)))
-                        } else if (state.deletedMessage?.third == Type.Write) {
-                            viewModel.onEvent(MainEvent.RemoveWriteMessage(Pair(state.deletedMessage!!.first, state.deletedMessage!!.second)))
+                        if (state.deletedMessage?.second == Type.Emulate) {
+                            viewModel.onEvent(MainEvent.RemoveEmulateMessage(state.deletedMessage!!.first))
+                        } else if (state.deletedMessage?.second == Type.Write) {
+                            viewModel.onEvent(MainEvent.RemoveWriteMessage(state.deletedMessage!!.first))
                         }
                     }
                 )

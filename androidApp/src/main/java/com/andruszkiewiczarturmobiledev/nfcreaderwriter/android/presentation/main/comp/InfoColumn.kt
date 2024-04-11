@@ -1,5 +1,6 @@
 package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,9 @@ fun InfoColumn(
     listOfWorking: List<String> = emptyList()
 ) {
     ElevatedCard(
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .animateContentSize()
     ) {
         Column(
             modifier = Modifier

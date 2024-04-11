@@ -12,10 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R.*
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TagValue
 
 @Composable
 fun DeleteDialog(
-    message: Triple<String, String, Type>?,
+    message: Pair<TagValue, Type>?,
     onClickDismissButton: () -> Unit,
     onClickConfirmButton: () -> Unit
 ) {

@@ -1,28 +1,39 @@
 package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main
 
 import android.app.PendingIntent
-import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NfcAdapter
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R
 
 data class MainState(
     val readCardState: NFCReadState? = null,
-    val writeState: TagsValue = TagsValue(),
-    val emulateState: TagsValue = TagsValue(),
-    val emulationChosen: Pair<String, String>? = null,
+    val writeState: TagValue = TagValue(),
+    val writeStateList: List<TagValue> = emptyList(),
+    val emulateState: TagValue = TagValue(),
+    val emulateStateList: List<TagValue> = emptyList(),
+    val emulationChosen: TagValue? = null,
     val typeOfDialog: Type? = null,
+    val typesOfData: List<TypeDataState> = emptyList(),
     val isPresentedInfoDialog: Boolean = false,
-    val deletedMessage: Triple<String, String, Type>? = null,
+    val deletedMessage: Pair<TagValue, Type>? = null,
     val techList: List<String> = listOf(),
     val intentFilter: List<IntentFilter> = listOf(),
     val pendingIntent: PendingIntent? = null,
     val nfcAdapter: NfcAdapter? = null
 )
 
-data class TagsValue(
+data class TagValue(
+    val type: TypeData = TypeData.PlainText,
     val message: String = "",
-    val type: String = "Plain/Text",
-    val messages: List<Pair<String, String>> = emptyList()
+    val typeValue: Int = R.string.PlainText
+)
+
+data class TypeDataState(
+    val type: TypeData,
+    val name: Int,
+    val icon: ImageVector,
+    val description: Int
 )
 
 data class NFCReadState(
@@ -44,4 +55,24 @@ data class NFCReadState(
 
 enum class Type {
     Write, Emulate
+}
+
+enum class TypeData {
+    PlainText,
+    URLURI,
+    OwnURLURI,
+    Search,
+    SocialNetwork,
+    Video,
+    File,
+    Application,
+    Email,
+    Contact,
+    PhoneNumber,
+    SMS,
+    Location,
+    OwnLocation,
+    Address,
+    WiFi,
+    Data
 }

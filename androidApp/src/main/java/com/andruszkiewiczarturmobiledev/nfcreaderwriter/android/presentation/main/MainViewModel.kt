@@ -14,8 +14,29 @@ import android.nfc.tech.NfcB
 import android.nfc.tech.NfcF
 import android.nfc.tech.NfcV
 import android.util.Log
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Call
+import androidx.compose.material.icons.outlined.ContactPage
+import androidx.compose.material.icons.outlined.LocalLibrary
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material.icons.outlined.Sms
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.rounded.DatasetLinked
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Diversity3
+import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material.icons.rounded.FileCopy
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.OndemandVideo
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Smartphone
+import androidx.compose.material.icons.rounded.Storage
+import androidx.compose.material.icons.rounded.WifiPassword
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -39,6 +60,10 @@ class MainViewModel(): ViewModel() {
         private val TAG = "MainViewModel_TAG"
     }
 
+    init {
+        fillDataTypes()
+    }
+
     fun onEvent(event: MainEvent) {
         when (event) {
             is MainEvent.EnteredEmulateCardMessage -> {
@@ -56,17 +81,15 @@ class MainViewModel(): ViewModel() {
                 ) }
             }
             MainEvent.AddWriteMessage -> {
-                val innerState = _state.value.writeState
-
                 viewModelScope.launch {
-                    if (innerState.message.isBlank()) {
+                    if (_state.value.writeState.message.isBlank()) {
                         _sharedFlow.emit(MainUiEvent.Toast("Field is empty!"))
-                    } else if (innerState.messages.contains(Pair(innerState.type, innerState.message))) {
+                    } else if (_state.value.writeStateList.contains(_state.value.writeState)) {
                         _sharedFlow.emit(MainUiEvent.Toast("You have this value already!"))
                     } else {
                         _state.update { it.copy(
+                            writeStateList = it.writeStateList + it.writeState,
                             writeState = it.writeState.copy(
-                                messages = it.writeState.messages + Pair(it.writeState.type, it.writeState.message),
                                 message = ""
                             )
                         ) }
@@ -75,9 +98,7 @@ class MainViewModel(): ViewModel() {
             }
             is MainEvent.RemoveWriteMessage -> {
                 _state.update { it.copy(
-                    writeState = it.writeState.copy(
-                        messages = it.writeState.messages.filter { message -> event.message != message}
-                    ),
+                    writeStateList = it.writeStateList.filter { message -> event.value != message },
                     deletedMessage = null
                 ) }
             }
@@ -135,7 +156,7 @@ class MainViewModel(): ViewModel() {
 
                     if (ndef != null) {
                         Log.d(TAG, "ndef isWritable: ${ndef.isWritable}")
-                        val records = _state.value.writeState.messages.map { (type, message) -> createTextRecord(type, message) }.toTypedArray()
+                        val records = _state.value.writeStateList.map { value -> createTextRecord(value.type.toString(), value.message) }.toTypedArray()
 
                         Log.d(TAG, "records: $records")
                         val messages = NdefMessage(
@@ -153,33 +174,29 @@ class MainViewModel(): ViewModel() {
             }
             MainEvent.EmulateNFCCard -> {
                 viewModelScope.launch {
-                    val message = _state.value.emulationChosen
+                    val value = _state.value.emulationChosen
 
-                    if (message != null)
-                        _sharedFlow.emit(MainUiEvent.EmulateCard(_state.value.emulationChosen!!.second))
+                    if (value != null)
+                        _sharedFlow.emit(MainUiEvent.EmulateCard(_state.value.emulationChosen!!.message))
                 }
             }
             is MainEvent.RemoveEmulateMessage -> {
                 _state.update { it.copy(
-                    emulateState = it.emulateState.copy(
-                        messages = it.emulateState.messages.filter { message -> event.message != message}
-                    ),
-                    emulationChosen = if (event.message == it.emulationChosen) null else it.emulationChosen,
+                    emulateStateList = it.emulateStateList.filter { message -> event.value != message },
+                    emulationChosen = if (event.value == it.emulationChosen) null else it.emulationChosen,
                     deletedMessage = null
                 ) }
             }
             is MainEvent.AddEmulateMessage -> {
-                val innerState = _state.value.emulateState
-
                 viewModelScope.launch {
-                    if (innerState.message.isBlank()) {
+                    if (_state.value.emulateState.message.isBlank()) {
                         _sharedFlow.emit(MainUiEvent.Toast("Field is empty!"))
-                    } else if (innerState.messages.contains(Pair(innerState.type, innerState.message))) {
+                    } else if (_state.value.emulateStateList.contains(_state.value.emulateState)) {
                         _sharedFlow.emit(MainUiEvent.Toast("You have this value already!"))
                     } else {
                         _state.update { it.copy(
+                            emulateStateList = _state.value.emulateStateList + _state.value.emulateState,
                             emulateState = it.emulateState.copy(
-                                messages = it.emulateState.messages + Pair(it.emulateState.type, it.emulateState.message),
                                 message = ""
                             )
                         ) }
@@ -188,18 +205,44 @@ class MainViewModel(): ViewModel() {
             }
             is MainEvent.ChooseEmulationMessage -> {
                 _state.update { it.copy(
-                    emulationChosen = event.message
+                    emulationChosen = event.value
                 ) }
             }
             is MainEvent.ShowDeletedDialog -> {
-                _state.update { it.copy(
-                    deletedMessage = event.value
-                ) }
+                if(event.value != null && event.type != null) {
+                    _state.update { it.copy(
+                        deletedMessage = Pair(event.value, event.type)
+                    ) }
+                } else {
+                    _state.update { it.copy(
+                        deletedMessage = null
+                    ) }
+                }
             }
             is MainEvent.ChangeStateOfInfoDialog -> {
                 _state.update { it.copy(
                     isPresentedInfoDialog = event.isPresented
                 ) }
+            }
+            is MainEvent.SetDataType -> {
+                when (event.type) {
+                    Type.Write -> {
+                       _state.update { it.copy(
+                           writeState = it.writeState.copy(
+                               type = event.value,
+                               typeValue = event.valueType
+                           )
+                       ) }
+                    }
+                    Type.Emulate -> {
+                        _state.update { it.copy(
+                            emulateState = it.emulateState.copy(
+                                type = event.value,
+                                typeValue = event.valueType
+                            )
+                        ) }
+                    }
+                }
             }
         }
     }
@@ -321,5 +364,116 @@ class MainViewModel(): ViewModel() {
         }
 
         return readState
+    }
+
+    private fun fillDataTypes() {
+        val data = listOf(
+            TypeDataState(
+                type = TypeData.PlainText,
+                name = R.string.PlainText,
+                icon = Icons.Rounded.Description,
+                description = R.string.PlainTextDescription
+            ),
+            TypeDataState(
+                type = TypeData.URLURI,
+                name = R.string.URLURI,
+                icon = Icons.Rounded.Link,
+                description = R.string.URLURIDescription
+            ),
+            TypeDataState(
+                type = TypeData.OwnURLURI,
+                name = R.string.OwnURLURI,
+                icon = Icons.Rounded.DatasetLinked,
+                description = R.string.OwnURLURIDescription
+            ),
+            TypeDataState(
+                type = TypeData.Search,
+                name = R.string.Search,
+                icon = Icons.Rounded.Search,
+                description = R.string.SearchDescription
+            ),
+            TypeDataState(
+                type = TypeData.SocialNetwork,
+                name = R.string.SocialNetwork,
+                icon = Icons.Rounded.Diversity3,
+                description = R.string.SocialNetworkDescription
+            ),
+            TypeDataState(
+                type = TypeData.Video,
+                name = R.string.Video,
+                icon = Icons.Rounded.OndemandVideo,
+                description = R.string.VideoDescription
+            ),
+            TypeDataState(
+                type = TypeData.File,
+                name = R.string.File,
+                icon = Icons.Rounded.FileCopy,
+                description = R.string.FileDescription
+            ),
+            TypeDataState(
+                type = TypeData.Application,
+                name = R.string.Application,
+                icon = Icons.Rounded.Smartphone,
+                description = R.string.ApplicationDescription
+            ),
+            TypeDataState(
+                type = TypeData.Email,
+                name = R.string.Email,
+                icon = Icons.Rounded.Email,
+                description = R.string.EmailDescription
+            ),
+            TypeDataState(
+                type = TypeData.Contact,
+                name = R.string.Contact,
+                icon = Icons.Outlined.ContactPage,
+                description = R.string.ContactDescription
+            ),
+            TypeDataState(
+                type = TypeData.PhoneNumber,
+                name = R.string.PhoneNumber,
+                icon = Icons.Outlined.Call,
+                description = R.string.PhoneNumberDescription
+            ),
+            TypeDataState(
+                type = TypeData.SMS,
+                name = R.string.SMS,
+                icon = Icons.Outlined.Sms,
+                description = R.string.SMSDescription
+            ),
+            TypeDataState(
+                type = TypeData.Location,
+                name = R.string.Location,
+                icon = Icons.Outlined.LocationOn,
+                description = R.string.LocationDescription
+            ),
+            TypeDataState(
+                type = TypeData.OwnLocation,
+                name = R.string.OwnLocation,
+                icon = Icons.Outlined.MyLocation,
+                description = R.string.OwnLocationDescription
+            ),
+            TypeDataState(
+                type = TypeData.Address,
+                name = R.string.Address,
+                icon = Icons.Outlined.LocalLibrary,
+                description = R.string.AddressDescription
+            ),
+            TypeDataState(
+                type = TypeData.WiFi,
+                name = R.string.WiFi,
+                icon = Icons.Rounded.WifiPassword,
+                description = R.string.WiFiDescription
+            ),
+            TypeDataState(
+                type = TypeData.Data,
+                name = R.string.Data,
+                icon = Icons.Outlined.Storage,
+                description = R.string.DataDescription
+            )
+        )
+
+        _state.update { it.copy(
+            typesOfData = data
+        ) }
     }
 }

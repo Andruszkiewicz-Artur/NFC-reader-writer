@@ -33,7 +33,6 @@ fun EmulateCardNFCPresentation(
     ScaffoldNFC(
         showFloatingButton = state.emulationChosen != null,
         onClickAddButton = { viewModel.onEvent(MainEvent.AddEmulateMessage) },
-        textFieldValue = state.emulateState.message,
         textFloatingButton = stringResource(id = string.EmulateNFCCard),
         iconFloatingButton = Icons.Rounded.CreditCard,
         onClickFloatingButton = {
@@ -42,17 +41,22 @@ fun EmulateCardNFCPresentation(
         },
         textFieldPlaceholder = stringResource(id = string.EnteredNewTag),
         textFieldChangeValue = { viewModel.onEvent(MainEvent.EnteredEmulateCardMessage(it)) },
-        messages = state.emulateState.messages,
+        messages = state.emulateStateList,
+        tagState = state.emulateState,
+        types = state.typesOfData,
+        onChangeTypeValue = { typeValue ->
+            viewModel.onEvent(MainEvent.SetDataType(typeValue.type, typeValue.name, Type.Emulate))
+        },
         rowView = { message ->
             BasicEmulateRow(
                 isChosen = message == state.emulationChosen,
-                type = message.first,
-                message = message.second,
-                isLast = state.emulateState.messages.last() == message,
+                type = stringResource(id = message.typeValue),
+                message = message.message,
+                isLast = state.emulateStateList.last() == message,
                 onClickRow = {
                     viewModel.onEvent(MainEvent.ChooseEmulationMessage(message))
                 },
-                onClickRemove = { viewModel.onEvent(MainEvent.ShowDeletedDialog(Triple(message.first, message.second, Type.Emulate))) }
+                onClickRemove = { viewModel.onEvent(MainEvent.ShowDeletedDialog(message, Type.Emulate)) }
             )
         }
     )
