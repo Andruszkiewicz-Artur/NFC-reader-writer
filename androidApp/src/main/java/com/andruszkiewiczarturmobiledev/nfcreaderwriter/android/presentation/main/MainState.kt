@@ -10,25 +10,12 @@ data class MainState(
     val readCardState: NFCReadState? = null,
     val writeStateList: List<TagValue> = emptyList(),
     val typeOfDialog: Type? = null,
-    val typesOfData: List<TypeDataState> = emptyList(),
-    val isPresentedInfoDialog: Boolean = false,
-    val deletedMessage: Pair<TagValue, Type>? = null,
-    val techList: List<String> = listOf(),
-    val intentFilter: List<IntentFilter> = listOf(),
-    val pendingIntent: PendingIntent? = null,
-    val nfcAdapter: NfcAdapter? = null
+    val isPresentedInfoDialog: Boolean = false
 )
 
 data class TagValue(
     val type: TypeData = TypeData.PlainText,
     val message: String = ""
-)
-
-data class TypeDataState(
-    val type: TypeData,
-    val name: Int,
-    val icon: ImageVector,
-    val description: Int
 )
 
 data class NFCReadState(

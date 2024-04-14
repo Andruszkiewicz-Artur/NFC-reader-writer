@@ -3,7 +3,6 @@ package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.ma
 sealed class MainUiEvent {
 
     data class EmulateCard(val message: String): MainUiEvent()
-    data class Toast(val message: String): MainUiEvent()
     data object StopEmulatingCard: MainUiEvent()
 
 }

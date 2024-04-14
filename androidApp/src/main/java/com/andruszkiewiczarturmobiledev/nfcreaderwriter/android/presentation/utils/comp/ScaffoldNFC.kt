@@ -32,9 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TagValue
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeData
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeDataState
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.Static
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

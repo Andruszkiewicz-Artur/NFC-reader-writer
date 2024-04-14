@@ -33,8 +33,6 @@ class MainViewModel(): ViewModel() {
     private val _sharedFlow = MutableSharedFlow<MainUiEvent>()
     val sharedFlow = _sharedFlow.asSharedFlow()
 
-    private val HEX_CHARS = "0123456789ABCDEF"
-
     companion object {
         private val TAG = "MainViewModel_TAG"
     }
@@ -50,26 +48,6 @@ class MainViewModel(): ViewModel() {
 
                 _state.update { it.copy(
                     typeOfDialog = event.type
-                ) }
-            }
-            is MainEvent.SetIntentFilter -> {
-                _state.update { it.copy(
-                    intentFilter = event.intentFilter
-                ) }
-            }
-            is MainEvent.SetNFCAdapter -> {
-                _state.update { it.copy(
-                    nfcAdapter = event.adapter
-                ) }
-            }
-            is MainEvent.SetPendingIntent -> {
-                _state.update { it.copy(
-                    pendingIntent = event.pendingIntent
-                ) }
-            }
-            is MainEvent.SetTechList -> {
-                _state.update { it.copy(
-                    techList = event.techList
                 ) }
             }
             is MainEvent.SetReadState -> {
@@ -134,21 +112,6 @@ class MainViewModel(): ViewModel() {
                 Log.d(TAG, "setWriteData in state: ${_state.value.writeStateList}")
             }
         }
-    }
-
-    fun hexStringToByteArray(data: String) : ByteArray {
-
-        val result = ByteArray(data.length / 2)
-
-        for (i in 0 until data.length step 2) {
-            val firstIndex = HEX_CHARS.indexOf(data[i]);
-            val secondIndex = HEX_CHARS.indexOf(data[i + 1]);
-
-            val octet = firstIndex.shl(4).or(secondIndex)
-            result.set(i.shr(1), octet.toByte())
-        }
-
-        return result
     }
 
     private fun convertToColonSeparated(input: String): String {

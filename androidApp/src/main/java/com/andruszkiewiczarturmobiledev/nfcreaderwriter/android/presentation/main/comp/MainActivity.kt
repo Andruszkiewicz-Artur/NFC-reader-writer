@@ -2,6 +2,7 @@ package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.ma
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NfcAdapter
@@ -52,6 +53,8 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var state: MainState
+    private lateinit var intent: Intent
+    private var nfcAdapter: NfcAdapter? = null
 
     companion object {
         private val TAG = "MainActivity_TAG"
@@ -59,8 +62,7 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        state = viewModel.state.value
-        val intent = Intent(this@MainActivity, MyHostApduService::class.java)
+        init()
 
         setContent {
             val navHostController = rememberNavController()
@@ -76,15 +78,12 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                         MainUiEvent.StopEmulatingCard -> {
                             stopService(intent)
                         }
-                        is MainUiEvent.Toast -> {
-                            Toast.makeText(applicationContext, event.message, Toast.LENGTH_LONG).show()
-                        }
                     }
                 }
             }
 
-            MyApplicationTheme() {
-                Surface() {
+            MyApplicationTheme {
+                Surface {
                     Scaffold(
                         topBar = {
                             Column {
@@ -113,13 +112,13 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                                 .fillMaxSize()
                                 .padding(padding)
                         ) {
-                            if (state.nfcAdapter == null) {
+                            if (nfcAdapter == null) {
                                 Text(
                                     text = stringResource(id = string.DontSupportNFC),
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center
                                 )
-                            } else if (!state.nfcAdapter!!.isEnabled) {
+                            } else if (!nfcAdapter!!.isEnabled) {
                                 Text(
                                     text = stringResource(id = string.TurnOnNFC),
                                     fontWeight = FontWeight.Bold,
@@ -148,34 +147,19 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                     }
                 )
 
-//                DeleteDialog(
-//                    message = state.deletedMessage,
-//                    onClickDismissButton = {
-//                        viewModel.onEvent(MainEvent.ShowDeletedDialog(null, null))
-//                    },
-//                    onClickConfirmButton = {
-//                        if (state.deletedMessage?.second == Type.Emulate) {
-//                            viewModel.onEvent(MainEvent.RemoveEmulateMessage(state.deletedMessage!!.first))
-//                        } else if (state.deletedMessage?.second == Type.Write) {
-//                            viewModel.onEvent(MainEvent.RemoveWriteMessage(state.deletedMessage!!.first))
-//                        }
-//                    }
-//                )
-
                 InfoDialog(
                     isPresented = state.isPresentedInfoDialog,
                     onClickDismiss = { viewModel.onEvent(MainEvent.ChangeStateOfInfoDialog(false)) }
                 )
             }
         }
-
-        init()
     }
 
     override fun onPause() {
         super.onPause()
 
-        state.nfcAdapter?.disableForegroundDispatch(this)
+        if (nfcAdapter != null)
+            nfcAdapter!!.disableForegroundDispatch(this)
     }
 
     override fun onResume() {
@@ -184,26 +168,26 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
         val intent = Intent(this, this::class.java)
         intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
-        state.nfcAdapter?.enableForegroundDispatch(this, pendingIntent, null, null)
+
+        if (nfcAdapter != null)
+            nfcAdapter!!.enableForegroundDispatch(this, pendingIntent, null, null)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+
+        if (nfcAdapter != null)
+            nfcAdapter!!.disableForegroundDispatch(this)
     }
 
     override fun onTagDiscovered(tag: Tag?) {
         val isoDep = IsoDep.get(tag)
         isoDep.connect()
-        val response = isoDep.transceive(viewModel.hexStringToByteArray(
-            "00A4040007A0000002471001"))
-        Log.d(TAG, "Card Response: ${response}")
         isoDep.close()
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-
-        Log.d(TAG, "on new Intent value in main: $intent")
 
         if (intent != null) {
             if (state.typeOfDialog == Type.Write) viewModel.onEvent(MainEvent.WriteNFCCard(intent))
@@ -213,37 +197,8 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
     }
 
     private fun init() {
-        viewModel.onEvent(MainEvent.SetNFCAdapter(NfcAdapter.getDefaultAdapter(this)))
-
-
-        foreGroundDispatchSystem()
-    }
-
-    private fun foreGroundDispatchSystem() {
-        val intent = Intent(this, javaClass).apply {
-            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        }
-        viewModel.onEvent(MainEvent.SetPendingIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)))
-
-        val ndef = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED).apply {
-            try {
-                addDataType("*/*")
-            } catch (e: IntentFilter.MalformedMimeTypeException) {
-                throw RuntimeException("fail", e)
-            }
-        }
-
-        viewModel.onEvent(MainEvent.SetIntentFilter(listOf(ndef)))
-        viewModel.onEvent(MainEvent.SetTechList(
-            listOf(
-                NfcA::class.java.name,
-                NfcB::class.java.name,
-                NfcF::class.java.name,
-                NfcV::class.java.name,
-                IsoDep::class.java.name,
-                MifareClassic::class.java.name,
-                MifareUltralight::class.java.name
-            )
-        ))
+        state = viewModel.state.value
+        intent = Intent(this@MainActivity, MyHostApduService::class.java)
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
     }
 }
