@@ -12,6 +12,7 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.wri
 @Composable
 fun NavHostMain(
     navHostController: NavHostController,
+    emulateNFCCard: (String) -> Unit,
     viewModel: MainViewModel
 ) {
 
@@ -40,7 +41,7 @@ fun NavHostMain(
             route = Screen.EmulatePresentation.route
         ) {
             EmulateCardNFCPresentation(
-                viewModel = viewModel
+                emulateValue = emulateNFCCard
             )
         }
     }

@@ -12,6 +12,7 @@
         android:label="NFC"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:theme="@style/AppTheme"
+        android:name="com.andruszkiewiczarturmobiledev.nfcreaderwriter.NFCApp"
         tools:targetApi="s"
         tools:ignore="DataExtractionRules">
 
@@ -30,7 +31,9 @@
         <activity
             android:name=".presentation.main.comp.MainActivity"
             android:windowSoftInputMode="adjustResize"
-            android:exported="true">
+            android:screenOrientation="portrait"
+            android:exported="true"
+            tools:ignore="LockedOrientationActivity">
 <!--            android:launchMode="singleTask"-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

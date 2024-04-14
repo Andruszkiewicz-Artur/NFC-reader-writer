@@ -9,15 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cached
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
@@ -38,6 +35,7 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.mai
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.Type
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeData
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeDataState
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.Static
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -51,8 +49,7 @@ fun ScaffoldNFC(
     textFieldPlaceholder: String,
     textFieldChangeValue: (String) -> Unit,
     messages: List<TagValue>,
-    types: List<TypeDataState>,
-    onChangeTypeValue: (TypeDataState) -> Unit,
+    onChangeTypeValue: (TypeData) -> Unit,
     rowView: @Composable (TagValue) -> Unit
 ) {
     var isPresent by remember { mutableStateOf(false) }
@@ -98,7 +95,7 @@ fun ScaffoldNFC(
                             }
                     ) {
                         Text(
-                            text = stringResource(id = tagState.typeValue),
+                            text = stringResource(id = Static.listOfTypes.get(key = tagState.type)?.name ?: 0),
                             fontWeight = FontWeight.Bold
                         )
 
@@ -136,10 +133,8 @@ fun ScaffoldNFC(
     DialogChooseType(
         isPresent = isPresent,
         changeValue = { tagValue ->
-            isPresent = false
             onChangeTypeValue(tagValue)
         },
-        onClickDismiss = { isPresent = false },
-        types = types
+        onClickDismiss = { isPresent = false }
     )
 }

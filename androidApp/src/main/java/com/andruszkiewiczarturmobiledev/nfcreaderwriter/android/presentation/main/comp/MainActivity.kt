@@ -128,7 +128,10 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                             } else {
                                 NavHostMain(
                                     navHostController = navHostController,
-                                    viewModel = viewModel
+                                    viewModel = viewModel,
+                                    emulateNFCCard = { message ->
+                                        viewModel.onEvent(MainEvent.EmulateNFCCard(message))
+                                    }
                                 )
                             }
                         }
@@ -142,19 +145,19 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                     }
                 )
 
-                DeleteDialog(
-                    message = state.deletedMessage,
-                    onClickDismissButton = {
-                        viewModel.onEvent(MainEvent.ShowDeletedDialog(null, null))
-                    },
-                    onClickConfirmButton = {
-                        if (state.deletedMessage?.second == Type.Emulate) {
-                            viewModel.onEvent(MainEvent.RemoveEmulateMessage(state.deletedMessage!!.first))
-                        } else if (state.deletedMessage?.second == Type.Write) {
-                            viewModel.onEvent(MainEvent.RemoveWriteMessage(state.deletedMessage!!.first))
-                        }
-                    }
-                )
+//                DeleteDialog(
+//                    message = state.deletedMessage,
+//                    onClickDismissButton = {
+//                        viewModel.onEvent(MainEvent.ShowDeletedDialog(null, null))
+//                    },
+//                    onClickConfirmButton = {
+//                        if (state.deletedMessage?.second == Type.Emulate) {
+//                            viewModel.onEvent(MainEvent.RemoveEmulateMessage(state.deletedMessage!!.first))
+//                        } else if (state.deletedMessage?.second == Type.Write) {
+//                            viewModel.onEvent(MainEvent.RemoveWriteMessage(state.deletedMessage!!.first))
+//                        }
+//                    }
+//                )
 
                 InfoDialog(
                     isPresented = state.isPresentedInfoDialog,

@@ -66,13 +66,6 @@ class MainViewModel(): ViewModel() {
 
     fun onEvent(event: MainEvent) {
         when (event) {
-            is MainEvent.EnteredEmulateCardMessage -> {
-                _state.update { it.copy(
-                    emulateState = it.emulateState.copy(
-                        message = event.message
-                    )
-                ) }
-            }
             is MainEvent.EnteredWriteMessage -> {
                 _state.update { it.copy(
                     writeState = it.writeState.copy(
@@ -172,41 +165,13 @@ class MainViewModel(): ViewModel() {
                     }
                 }
             }
-            MainEvent.EmulateNFCCard -> {
+            is MainEvent.EmulateNFCCard -> {
                 viewModelScope.launch {
-                    val value = _state.value.emulationChosen
-
-                    if (value != null)
-                        _sharedFlow.emit(MainUiEvent.EmulateCard(_state.value.emulationChosen!!.message))
+                    _state.update { it.copy(
+                        typeOfDialog = Type.Emulate
+                    ) }
+                    _sharedFlow.emit(MainUiEvent.EmulateCard(event.message))
                 }
-            }
-            is MainEvent.RemoveEmulateMessage -> {
-                _state.update { it.copy(
-                    emulateStateList = it.emulateStateList.filter { message -> event.value != message },
-                    emulationChosen = if (event.value == it.emulationChosen) null else it.emulationChosen,
-                    deletedMessage = null
-                ) }
-            }
-            is MainEvent.AddEmulateMessage -> {
-                viewModelScope.launch {
-                    if (_state.value.emulateState.message.isBlank()) {
-                        _sharedFlow.emit(MainUiEvent.Toast("Field is empty!"))
-                    } else if (_state.value.emulateStateList.contains(_state.value.emulateState)) {
-                        _sharedFlow.emit(MainUiEvent.Toast("You have this value already!"))
-                    } else {
-                        _state.update { it.copy(
-                            emulateStateList = _state.value.emulateStateList + _state.value.emulateState,
-                            emulateState = it.emulateState.copy(
-                                message = ""
-                            )
-                        ) }
-                    }
-                }
-            }
-            is MainEvent.ChooseEmulationMessage -> {
-                _state.update { it.copy(
-                    emulationChosen = event.value
-                ) }
             }
             is MainEvent.ShowDeletedDialog -> {
                 if(event.value != null && event.type != null) {
@@ -223,26 +188,6 @@ class MainViewModel(): ViewModel() {
                 _state.update { it.copy(
                     isPresentedInfoDialog = event.isPresented
                 ) }
-            }
-            is MainEvent.SetDataType -> {
-                when (event.type) {
-                    Type.Write -> {
-                       _state.update { it.copy(
-                           writeState = it.writeState.copy(
-                               type = event.value,
-                               typeValue = event.valueType
-                           )
-                       ) }
-                    }
-                    Type.Emulate -> {
-                        _state.update { it.copy(
-                            emulateState = it.emulateState.copy(
-                                type = event.value,
-                                typeValue = event.valueType
-                            )
-                        ) }
-                    }
-                }
             }
         }
     }

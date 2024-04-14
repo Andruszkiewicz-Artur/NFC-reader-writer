@@ -16,11 +16,11 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.mai
 
 @Composable
 fun DeleteDialog(
-    message: Pair<TagValue, Type>?,
+    isPresented: Boolean,
     onClickDismissButton: () -> Unit,
     onClickConfirmButton: () -> Unit
 ) {
-    AnimatedVisibility(visible = message != null) {
+    AnimatedVisibility(visible = isPresented) {
         AlertDialog(
             onDismissRequest = { onClickDismissButton() },
             confirmButton = {

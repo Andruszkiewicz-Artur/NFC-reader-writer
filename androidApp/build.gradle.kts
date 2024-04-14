@@ -49,4 +49,8 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.compose.material.icons)
     implementation(libs.bundles.navigation)
+
+    // Koin-Dependency injection
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 }

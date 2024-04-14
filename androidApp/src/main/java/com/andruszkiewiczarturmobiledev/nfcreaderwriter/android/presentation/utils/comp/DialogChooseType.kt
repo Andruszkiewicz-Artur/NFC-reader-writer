@@ -39,16 +39,17 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TagValue
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeData
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeDataState
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.Static
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DialogChooseType(
     isPresent: Boolean,
-    changeValue: (TypeDataState) -> Unit,
-    onClickDismiss: () -> Unit,
-    types: List<TypeDataState>
+    changeValue: (TypeData) -> Unit,
+    onClickDismiss: () -> Unit
 ) {
+    val listOfTypes = Static.listOfTypes.toList()
 
     AnimatedVisibility(visible = isPresent) {
         Dialog(
@@ -87,14 +88,14 @@ fun DialogChooseType(
                             .padding(padding)
                             .fillMaxWidth(0.9f)
                     ) {
-
-                        items(types) { type ->
+                        items(listOfTypes) { (type, description) ->
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
                                         changeValue(type)
+                                        onClickDismiss()
                                     }
                                     .padding(vertical = 8.dp)
                             ) {
@@ -102,7 +103,7 @@ fun DialogChooseType(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
-                                        imageVector = type.icon,
+                                        imageVector = description.icon,
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(40.dp)
@@ -112,11 +113,11 @@ fun DialogChooseType(
 
                                     Column {
                                         Text(
-                                            text = stringResource(id = type.name),
+                                            text = stringResource(id = description.name),
                                             fontWeight = FontWeight.Bold
                                         )
                                         Text(
-                                            text = stringResource(id = type.description),
+                                            text = stringResource(id = description.description),
                                             style = MaterialTheme.typography.bodySmall
                                         )
                                     }
@@ -130,7 +131,7 @@ fun DialogChooseType(
                                 )
                             }
 
-                            if(type != types.last())
+                            if(listOfTypes.last() != Pair(type, description))
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                         }
                     }

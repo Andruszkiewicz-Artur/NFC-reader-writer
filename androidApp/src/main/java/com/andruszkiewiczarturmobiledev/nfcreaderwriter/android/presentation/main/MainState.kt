@@ -10,9 +10,6 @@ data class MainState(
     val readCardState: NFCReadState? = null,
     val writeState: TagValue = TagValue(),
     val writeStateList: List<TagValue> = emptyList(),
-    val emulateState: TagValue = TagValue(),
-    val emulateStateList: List<TagValue> = emptyList(),
-    val emulationChosen: TagValue? = null,
     val typeOfDialog: Type? = null,
     val typesOfData: List<TypeDataState> = emptyList(),
     val isPresentedInfoDialog: Boolean = false,
@@ -25,8 +22,7 @@ data class MainState(
 
 data class TagValue(
     val type: TypeData = TypeData.PlainText,
-    val message: String = "",
-    val typeValue: Int = R.string.PlainText
+    val message: String = ""
 )
 
 data class TypeDataState(
