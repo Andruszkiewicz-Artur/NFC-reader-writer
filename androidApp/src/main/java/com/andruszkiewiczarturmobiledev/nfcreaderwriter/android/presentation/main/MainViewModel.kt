@@ -14,29 +14,8 @@ import android.nfc.tech.NfcB
 import android.nfc.tech.NfcF
 import android.nfc.tech.NfcV
 import android.util.Log
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.ContactPage
-import androidx.compose.material.icons.outlined.LocalLibrary
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.MyLocation
-import androidx.compose.material.icons.outlined.Sms
-import androidx.compose.material.icons.outlined.Storage
-import androidx.compose.material.icons.rounded.DatasetLinked
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.Diversity3
-import androidx.compose.material.icons.rounded.Email
-import androidx.compose.material.icons.rounded.FileCopy
-import androidx.compose.material.icons.rounded.Link
-import androidx.compose.material.icons.rounded.OndemandVideo
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Smartphone
-import androidx.compose.material.icons.rounded.Storage
-import androidx.compose.material.icons.rounded.WifiPassword
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -60,41 +39,8 @@ class MainViewModel(): ViewModel() {
         private val TAG = "MainViewModel_TAG"
     }
 
-    init {
-        fillDataTypes()
-    }
-
     fun onEvent(event: MainEvent) {
         when (event) {
-            is MainEvent.EnteredWriteMessage -> {
-                _state.update { it.copy(
-                    writeState = it.writeState.copy(
-                        message = event.message
-                    )
-                ) }
-            }
-            MainEvent.AddWriteMessage -> {
-                viewModelScope.launch {
-                    if (_state.value.writeState.message.isBlank()) {
-                        _sharedFlow.emit(MainUiEvent.Toast("Field is empty!"))
-                    } else if (_state.value.writeStateList.contains(_state.value.writeState)) {
-                        _sharedFlow.emit(MainUiEvent.Toast("You have this value already!"))
-                    } else {
-                        _state.update { it.copy(
-                            writeStateList = it.writeStateList + it.writeState,
-                            writeState = it.writeState.copy(
-                                message = ""
-                            )
-                        ) }
-                    }
-                }
-            }
-            is MainEvent.RemoveWriteMessage -> {
-                _state.update { it.copy(
-                    writeStateList = it.writeStateList.filter { message -> event.value != message },
-                    deletedMessage = null
-                ) }
-            }
             is MainEvent.OnClickSetAlertDialog -> {
                 if (_state.value.typeOfDialog == Type.Emulate) {
                     viewModelScope.launch {
@@ -140,8 +86,9 @@ class MainViewModel(): ViewModel() {
             }
             is MainEvent.WriteNFCCard -> {
                 val intent = event.intent
+                Log.d(TAG, "Start writeNFCCard")
 
-                if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
+                if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action && _state.value.writeStateList.isNotEmpty()) {
                     val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
                     val ndef = Ndef.get(tag)
 
@@ -160,7 +107,6 @@ class MainViewModel(): ViewModel() {
                         ndef.writeNdefMessage(messages)
                         ndef.close()
 
-                        onEvent(MainEvent.EnteredWriteMessage(""))
                         onEvent(MainEvent.OnClickSetAlertDialog(null))
                     }
                 }
@@ -173,21 +119,19 @@ class MainViewModel(): ViewModel() {
                     _sharedFlow.emit(MainUiEvent.EmulateCard(event.message))
                 }
             }
-            is MainEvent.ShowDeletedDialog -> {
-                if(event.value != null && event.type != null) {
-                    _state.update { it.copy(
-                        deletedMessage = Pair(event.value, event.type)
-                    ) }
-                } else {
-                    _state.update { it.copy(
-                        deletedMessage = null
-                    ) }
-                }
-            }
             is MainEvent.ChangeStateOfInfoDialog -> {
                 _state.update { it.copy(
                     isPresentedInfoDialog = event.isPresented
                 ) }
+            }
+            is MainEvent.SetWriteData -> {
+                _state.update { it.copy(
+                    writeStateList = event.value,
+                    typeOfDialog = Type.Write
+                ) }
+
+                Log.d(TAG, "setWriteData in event: ${event.value}")
+                Log.d(TAG, "setWriteData in state: ${_state.value.writeStateList}")
             }
         }
     }
@@ -309,116 +253,5 @@ class MainViewModel(): ViewModel() {
         }
 
         return readState
-    }
-
-    private fun fillDataTypes() {
-        val data = listOf(
-            TypeDataState(
-                type = TypeData.PlainText,
-                name = R.string.PlainText,
-                icon = Icons.Rounded.Description,
-                description = R.string.PlainTextDescription
-            ),
-            TypeDataState(
-                type = TypeData.URLURI,
-                name = R.string.URLURI,
-                icon = Icons.Rounded.Link,
-                description = R.string.URLURIDescription
-            ),
-            TypeDataState(
-                type = TypeData.OwnURLURI,
-                name = R.string.OwnURLURI,
-                icon = Icons.Rounded.DatasetLinked,
-                description = R.string.OwnURLURIDescription
-            ),
-            TypeDataState(
-                type = TypeData.Search,
-                name = R.string.Search,
-                icon = Icons.Rounded.Search,
-                description = R.string.SearchDescription
-            ),
-            TypeDataState(
-                type = TypeData.SocialNetwork,
-                name = R.string.SocialNetwork,
-                icon = Icons.Rounded.Diversity3,
-                description = R.string.SocialNetworkDescription
-            ),
-            TypeDataState(
-                type = TypeData.Video,
-                name = R.string.Video,
-                icon = Icons.Rounded.OndemandVideo,
-                description = R.string.VideoDescription
-            ),
-            TypeDataState(
-                type = TypeData.File,
-                name = R.string.File,
-                icon = Icons.Rounded.FileCopy,
-                description = R.string.FileDescription
-            ),
-            TypeDataState(
-                type = TypeData.Application,
-                name = R.string.Application,
-                icon = Icons.Rounded.Smartphone,
-                description = R.string.ApplicationDescription
-            ),
-            TypeDataState(
-                type = TypeData.Email,
-                name = R.string.Email,
-                icon = Icons.Rounded.Email,
-                description = R.string.EmailDescription
-            ),
-            TypeDataState(
-                type = TypeData.Contact,
-                name = R.string.Contact,
-                icon = Icons.Outlined.ContactPage,
-                description = R.string.ContactDescription
-            ),
-            TypeDataState(
-                type = TypeData.PhoneNumber,
-                name = R.string.PhoneNumber,
-                icon = Icons.Outlined.Call,
-                description = R.string.PhoneNumberDescription
-            ),
-            TypeDataState(
-                type = TypeData.SMS,
-                name = R.string.SMS,
-                icon = Icons.Outlined.Sms,
-                description = R.string.SMSDescription
-            ),
-            TypeDataState(
-                type = TypeData.Location,
-                name = R.string.Location,
-                icon = Icons.Outlined.LocationOn,
-                description = R.string.LocationDescription
-            ),
-            TypeDataState(
-                type = TypeData.OwnLocation,
-                name = R.string.OwnLocation,
-                icon = Icons.Outlined.MyLocation,
-                description = R.string.OwnLocationDescription
-            ),
-            TypeDataState(
-                type = TypeData.Address,
-                name = R.string.Address,
-                icon = Icons.Outlined.LocalLibrary,
-                description = R.string.AddressDescription
-            ),
-            TypeDataState(
-                type = TypeData.WiFi,
-                name = R.string.WiFi,
-                icon = Icons.Rounded.WifiPassword,
-                description = R.string.WiFiDescription
-            ),
-            TypeDataState(
-                type = TypeData.Data,
-                name = R.string.Data,
-                icon = Icons.Outlined.Storage,
-                description = R.string.DataDescription
-            )
-        )
-
-        _state.update { it.copy(
-            typesOfData = data
-        ) }
     }
 }

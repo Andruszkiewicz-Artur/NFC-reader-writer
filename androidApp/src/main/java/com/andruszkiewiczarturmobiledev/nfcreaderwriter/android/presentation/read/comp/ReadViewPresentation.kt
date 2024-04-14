@@ -18,21 +18,18 @@ import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainViewModel
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R.*
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.NFCReadState
 
 @Composable
 fun ReadViewPresentation(
-    viewModel: MainViewModel
+    nfcReadState: NFCReadState?
 ) {
-    val state = viewModel.state.collectAsState().value.readCardState
-
-    if (state == null) {
+    if (nfcReadState == null) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -50,77 +47,77 @@ fun ReadViewPresentation(
                 RowViewInRead(
                     imageVector = Icons.Outlined.Sell,
                     title = stringResource(id = string.TagKind),
-                    content = state.tagKind
+                    content = nfcReadState.tagKind
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Outlined.Key,
                     title = "SN",
-                    content = state.sn
+                    content = nfcReadState.sn
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Outlined.VpnKey,
                     title = stringResource(id = string.SystemCode),
-                    content = state.systemCode
+                    content = nfcReadState.systemCode
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Filled.Build,
                     title = stringResource(id = string.Techs),
-                    content = state.techs
+                    content = nfcReadState.techs
                 )
 
                 RowViewInRead(
                     letter = 'A',
                     title = "ATQA",
-                    content = state.atqa
+                    content = nfcReadState.atqa
                 )
 
                 RowViewInRead(
                     letter = 'S',
                     title = "SAK",
-                    content = state.sak
+                    content = nfcReadState.sak
                 )
 
                 RowViewInRead(
                     letter = 'D',
                     title = "DSF Id",
-                    content = state.dsfId
+                    content = nfcReadState.dsfId
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Filled.Storage,
                     title = stringResource(id = string.Storage),
-                    content = state.storage
+                    content = nfcReadState.storage
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Filled.Folder,
                     title = stringResource(id = string.MaxStorageSize),
-                    content = state.maxSizeStorage
+                    content = nfcReadState.maxSizeStorage
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Outlined.Info,
                     title = stringResource(id = string.FormatData),
-                    content = state.dataFormat
+                    content = nfcReadState.dataFormat
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Filled.RestorePage,
                     title = stringResource(id = string.IsWritable),
-                    content = if (state.isWritable == true) stringResource(id = string.Yes) else if (state.isWritable == false) stringResource(id = string.No) else null
+                    content = if (nfcReadState.isWritable == true) stringResource(id = string.Yes) else if (nfcReadState.isWritable == false) stringResource(id = string.No) else null
                 )
 
                 RowViewInRead(
                     imageVector = Icons.Filled.Lock,
                     title = stringResource(id = string.CanSetReadOnly),
-                    content = if (state.canSetOnlyToRead == true) stringResource(id = string.Yes) else if (state.canSetOnlyToRead == false) stringResource(id = string.No) else null
+                    content = if (nfcReadState.canSetOnlyToRead == true) stringResource(id = string.Yes) else if (nfcReadState.canSetOnlyToRead == false) stringResource(id = string.No) else null
                 )
             }
 
-            items(state.messages) { message ->
+            items(nfcReadState.messages) { message ->
                 RowViewInRead(
                     imageVector = Icons.Default.ListAlt,
                     title = message.first,

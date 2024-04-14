@@ -9,7 +9,6 @@ import androidx.compose.ui.res.stringResource
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.ScaffoldNFC
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R.*
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.emulate.EmulateEvent
-import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.emulate.EmulateUiEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.emulate.EmulateViewModel
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.MainUiEvent
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.comp.DeleteDialog
@@ -24,23 +23,14 @@ fun EmulateCardNFCPresentation(
 ) {
     val state = viewModel.state.collectAsState().value
 
-    LaunchedEffect(key1 = true) {
-        viewModel.sharedFlow.collectLatest { event ->
-            when (event) {
-                is EmulateUiEvent.EmulateValue -> {
-                    emulateValue(event.message)
-                }
-            }
-        }
-    }
-
     ScaffoldNFC(
         showFloatingButton = state.emulateChoose != null,
         onClickAddButton = { viewModel.onEvent(EmulateEvent.AddEmulateValue) },
         textFloatingButton = stringResource(id = string.EmulateNFCCard),
         iconFloatingButton = Icons.Rounded.CreditCard,
         onClickFloatingButton = {
-            viewModel.onEvent(EmulateEvent.EmulateNFCCard)
+            if (state.emulateChoose != null)
+                emulateValue(state.emulateChoose.message)
         },
         textFieldPlaceholder = stringResource(id = string.EnteredNewTag),
         textFieldChangeValue = { viewModel.onEvent(EmulateEvent.EnteredEmulateValue(it)) },
@@ -66,8 +56,6 @@ fun EmulateCardNFCPresentation(
     DeleteDialog(
         isPresented = state.deleteValue != null,
         onClickDismissButton = { viewModel.onEvent(EmulateEvent.ShowDeletedDialog(null)) },
-        onClickConfirmButton = {
-            viewModel.onEvent(EmulateEvent.RemoveEmulateValue)
-        }
+        onClickConfirmButton = { viewModel.onEvent(EmulateEvent.RemoveEmulateValue) }
     )
 }

@@ -8,17 +8,13 @@ import android.nfc.NfcAdapter
 sealed class MainEvent {
     data class OnClickSetAlertDialog(val type: Type?): MainEvent()
 
-    data class EnteredWriteMessage(val message: String): MainEvent()
-    data object AddWriteMessage: MainEvent()
-    data class RemoveWriteMessage(val value: TagValue): MainEvent()
-    data class ShowDeletedDialog(val value: TagValue?, val type: Type?): MainEvent()
-
     data class SetNFCAdapter(val adapter: NfcAdapter): MainEvent()
     data class SetPendingIntent(val pendingIntent: PendingIntent): MainEvent()
     data class SetIntentFilter(val intentFilter: List<IntentFilter>): MainEvent()
     data class SetTechList(val techList: List<String>): MainEvent()
     data class SetReadState(val readState: NFCReadState?): MainEvent()
     data class ReadNFCCard(val intent: Intent): MainEvent()
+    data class SetWriteData(val value: List<TagValue>): MainEvent()
     data class WriteNFCCard(val intent: Intent): MainEvent()
     data class EmulateNFCCard(val message: String): MainEvent()
     data class ChangeStateOfInfoDialog(val isPresented: Boolean): MainEvent()

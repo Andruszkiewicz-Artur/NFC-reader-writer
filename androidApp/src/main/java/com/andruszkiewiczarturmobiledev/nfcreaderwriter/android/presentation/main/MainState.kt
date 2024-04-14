@@ -8,7 +8,6 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R
 
 data class MainState(
     val readCardState: NFCReadState? = null,
-    val writeState: TagValue = TagValue(),
     val writeStateList: List<TagValue> = emptyList(),
     val typeOfDialog: Type? = null,
     val typesOfData: List<TypeDataState> = emptyList(),

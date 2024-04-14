@@ -128,9 +128,12 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                             } else {
                                 NavHostMain(
                                     navHostController = navHostController,
-                                    viewModel = viewModel,
+                                    nfcReadState = state.readCardState,
                                     emulateNFCCard = { message ->
                                         viewModel.onEvent(MainEvent.EmulateNFCCard(message))
+                                    },
+                                    writeNFCCard = { listOfMessages ->
+                                        viewModel.onEvent(MainEvent.SetWriteData(listOfMessages))
                                     }
                                 )
                             }

@@ -12,5 +12,4 @@ sealed class EmulateEvent {
 
     data object AddEmulateValue: EmulateEvent()
     data object RemoveEmulateValue: EmulateEvent()
-    data object EmulateNFCCard: EmulateEvent()
 }
