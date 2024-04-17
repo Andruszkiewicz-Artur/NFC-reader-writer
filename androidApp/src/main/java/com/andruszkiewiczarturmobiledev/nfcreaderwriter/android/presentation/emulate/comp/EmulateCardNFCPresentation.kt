@@ -25,17 +25,15 @@ fun EmulateCardNFCPresentation(
 
     ScaffoldNFC(
         showFloatingButton = state.emulateChoose != null,
-        onClickAddButton = { viewModel.onEvent(EmulateEvent.AddEmulateValue) },
+        onClickAddButton = { viewModel.onEvent(EmulateEvent.AddEmulateValue(it)) },
         textFloatingButton = stringResource(id = string.EmulateNFCCard),
         iconFloatingButton = Icons.Rounded.CreditCard,
         onClickFloatingButton = {
             if (state.emulateChoose != null)
                 emulateValue(state.emulateChoose.message)
         },
-        textFieldPlaceholder = stringResource(id = string.EnteredNewTag),
-        textFieldChangeValue = { viewModel.onEvent(EmulateEvent.EnteredEmulateValue(it)) },
+        typeData = state.currentValue,
         messages = state.listOfValues,
-        tagState = state.currentValue,
         onChangeTypeValue = { typeValue ->
             viewModel.onEvent(EmulateEvent.SetTypeData(typeValue))
         },

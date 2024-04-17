@@ -1,5 +1,6 @@
 package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.emulate
 
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TagValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -18,22 +19,16 @@ class EmulateViewModel(
 
     fun onEvent(event: EmulateEvent) {
         when (event) {
-            EmulateEvent.AddEmulateValue -> {
-                if (_state.value.currentValue.message.isNotBlank()) {
-                    _state.update { it.copy(
-                        listOfValues = it.listOfValues + it.currentValue,
-                        currentValue = it.currentValue.copy(
-                            message = ""
-                        )
-                    ) }
-                }
-            }
-            is EmulateEvent.EnteredEmulateValue -> {
-                _state.update { it.copy(
-                    currentValue = it.currentValue.copy(
+            is EmulateEvent.AddEmulateValue -> {
+                if (event.value.isNotBlank()) {
+                    val newTagValue = TagValue(
+                        type = _state.value.currentValue,
                         message = event.value
                     )
-                ) }
+                    _state.update { it.copy(
+                        listOfValues = it.listOfValues + newTagValue
+                    ) }
+                }
             }
             is EmulateEvent.FocusOnEmulatedValue -> {
                 _state.update { it.copy(
@@ -55,9 +50,7 @@ class EmulateViewModel(
             }
             is EmulateEvent.SetTypeData -> {
                 _state.update { it.copy(
-                    currentValue = it.currentValue.copy(
-                        type = event.typeData
-                    )
+                    currentValue = event.typeData
                 ) }
             }
         }

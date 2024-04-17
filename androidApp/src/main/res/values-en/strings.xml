@@ -84,4 +84,6 @@
     <string name="WiFiDescription">Share Wi-Fi data</string>
     <string name="Data">Data</string>
     <string name="DataDescription">Share mime value</string>
+    <string name="Add">Add</string>
+    <string name="EnteredUrlUri">Entered Uri/Url...</string>
 </resources>

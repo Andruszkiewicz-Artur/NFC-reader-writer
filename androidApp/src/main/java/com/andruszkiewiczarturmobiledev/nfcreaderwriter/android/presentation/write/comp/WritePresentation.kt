@@ -58,16 +58,14 @@ fun WritePresentation(
 
     ScaffoldNFC(
         showFloatingButton = state.listOfValues.isNotEmpty(),
-        onClickAddButton = { viewModel.onEvent(WriteEvent.AddWriteValue) },
+        onClickAddButton = { viewModel.onEvent(WriteEvent.AddWriteValue(it)) },
         textFloatingButton = stringResource(id = string.SaveOnNFCCard),
         iconFloatingButton = Icons.Rounded.Edit,
         onClickFloatingButton = {
             if (state.listOfValues.isNotEmpty())
                 writeNFCCard(state.listOfValues)
         },
-        tagState = state.currentValue,
-        textFieldPlaceholder = stringResource(id = string.EnteredNewTag),
-        textFieldChangeValue = { viewModel.onEvent(WriteEvent.EnteredWriteValue(it)) },
+        typeData = state.currentValue,
         messages = state.listOfValues,
         onChangeTypeValue = { typeValue ->
             viewModel.onEvent(WriteEvent.SetTypeData(typeValue))

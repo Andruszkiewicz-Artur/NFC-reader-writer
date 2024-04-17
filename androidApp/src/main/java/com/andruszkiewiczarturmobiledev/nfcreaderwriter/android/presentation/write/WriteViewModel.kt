@@ -1,5 +1,6 @@
 package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.write
 
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TagValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,22 +19,16 @@ class WriteViewModel(): KoinComponent {
 
     fun onEvent(event: WriteEvent) {
         when(event) {
-            WriteEvent.AddWriteValue -> {
-                if (_state.value.currentValue.message.isNotBlank()) {
-                    _state.update { it.copy(
-                        listOfValues = it.listOfValues + it.currentValue,
-                        currentValue = it.currentValue.copy(
-                            message = ""
-                        )
-                    ) }
-                }
-            }
-            is WriteEvent.EnteredWriteValue -> {
-                _state.update { it.copy(
-                    currentValue = it.currentValue.copy(
+            is WriteEvent.AddWriteValue -> {
+                if (event.value.isNotBlank()) {
+                    val newTagValue = TagValue(
+                        type = _state.value.currentValue,
                         message = event.value
                     )
-                ) }
+                    _state.update { it.copy(
+                        listOfValues = it.listOfValues + newTagValue
+                    ) }
+                }
             }
             WriteEvent.RemoveWriteValue -> {
                 if (_state.value.deleteValue != null) {
@@ -45,9 +40,7 @@ class WriteViewModel(): KoinComponent {
             }
             is WriteEvent.SetTypeData -> {
                 _state.update { it.copy(
-                    currentValue = it.currentValue.copy(
-                        type = event.typeData
-                    )
+                    currentValue = event.typeData
                 ) }
             }
             is WriteEvent.ShowDeletedDialog -> {

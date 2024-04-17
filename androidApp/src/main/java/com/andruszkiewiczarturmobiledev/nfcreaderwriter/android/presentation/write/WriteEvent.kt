@@ -5,11 +5,9 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.mai
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeData
 
 sealed class WriteEvent {
-    data class EnteredWriteValue(val value: String): WriteEvent()
     data class ShowDeletedDialog(val value: TagValue?): WriteEvent()
     data class SetTypeData(val typeData: TypeData): WriteEvent()
+    data class AddWriteValue(val value: String): WriteEvent()
 
-
-    data object AddWriteValue: WriteEvent()
     data object RemoveWriteValue: WriteEvent()
 }

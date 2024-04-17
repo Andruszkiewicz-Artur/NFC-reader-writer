@@ -4,12 +4,10 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.mai
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeData
 
 sealed class EmulateEvent {
-    data class EnteredEmulateValue(val value: String): EmulateEvent()
     data class ShowDeletedDialog(val value: TagValue?): EmulateEvent()
     data class FocusOnEmulatedValue(val value: TagValue): EmulateEvent()
     data class SetTypeData(val typeData: TypeData): EmulateEvent()
+    data class AddEmulateValue(val value: String): EmulateEvent()
 
-
-    data object AddEmulateValue: EmulateEvent()
     data object RemoveEmulateValue: EmulateEvent()
 }

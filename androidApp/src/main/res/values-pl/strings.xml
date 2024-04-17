@@ -83,4 +83,6 @@
     <string name="WiFiDescription">Udostępnij dane Wi-Fi</string>
     <string name="Data">Dane</string>
     <string name="DataDescription">Udostępnij wartość mime</string>
+    <string name="Add">Dodaj</string>
+    <string name="EnteredUrlUri">Wprowadź Uri/Url...</string>
 </resources>

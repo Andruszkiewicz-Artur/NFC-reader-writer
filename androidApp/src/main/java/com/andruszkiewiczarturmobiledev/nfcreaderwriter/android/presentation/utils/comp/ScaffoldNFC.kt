@@ -33,19 +33,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TagValue
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeData
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.MessageTypeView
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.utils.Static
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ScaffoldNFC(
     showFloatingButton: Boolean,
-    onClickAddButton: () -> Unit,
+    onClickAddButton: (String) -> Unit,
     textFloatingButton: String,
     iconFloatingButton: ImageVector,
     onClickFloatingButton: () -> Unit,
-    tagState: TagValue,
-    textFieldPlaceholder: String,
-    textFieldChangeValue: (String) -> Unit,
+    typeData: TypeData,
     messages: List<TagValue>,
     onChangeTypeValue: (TypeData) -> Unit,
     rowView: @Composable (TagValue) -> Unit
@@ -93,7 +92,7 @@ fun ScaffoldNFC(
                             }
                     ) {
                         Text(
-                            text = stringResource(id = Static.listOfTypes.get(key = tagState.type)?.name ?: 0),
+                            text = stringResource(id = Static.listOfTypes.get(key = typeData)?.name ?: 0),
                             fontWeight = FontWeight.Bold
                         )
 
@@ -107,11 +106,9 @@ fun ScaffoldNFC(
                     
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    TextFieldNFCCard(
-                        value = tagState.message,
-                        placeHolder = textFieldPlaceholder,
-                        enteredValue = { textFieldChangeValue(it) },
-                        onClickPlus = { onClickAddButton() }
+                    MessageTypeView(
+                        typeData = typeData,
+                        onClickAddButton = { onClickAddButton(it) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))

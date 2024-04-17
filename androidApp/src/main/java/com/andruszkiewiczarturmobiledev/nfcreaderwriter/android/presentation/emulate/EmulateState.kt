@@ -4,7 +4,7 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.mai
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeData
 
 data class EmulateState(
-    val currentValue: TagValue = TagValue(),
+    val currentValue: TypeData = TypeData.PlainText,
     val listOfValues: List<TagValue> = emptyList(),
     val emulateChoose: TagValue? = null,
     val deleteValue: TagValue? = null

@@ -70,10 +70,7 @@ class MainViewModel(): ViewModel() {
                     val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
                     val ndef = Ndef.get(tag)
 
-                    Log.d(TAG, "ndef value: $ndef")
-
                     if (ndef != null) {
-                        Log.d(TAG, "ndef isWritable: ${ndef.isWritable}")
                         val records = _state.value.writeStateList.map { value -> createTextRecord(value.type.toString(), value.message) }.toTypedArray()
 
                         Log.d(TAG, "records: $records")
