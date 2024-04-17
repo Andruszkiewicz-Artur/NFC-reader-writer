@@ -36,6 +36,7 @@ fun TextFieldNFCCard(
     imeAction: ImeAction = ImeAction.Done,
     onDone: () -> Unit = { },
     onNext: () -> Unit = { },
+    maxLines: Int = 1,
     modifier: Modifier = Modifier,
     leadingValue: String? = null,
     isPresentTypesLeadingValues: Boolean = false,
@@ -46,6 +47,7 @@ fun TextFieldNFCCard(
             placeholder = {
                 Text(text = placeHolder)
             },
+            maxLines = maxLines,
             value = value,
             onValueChange = { enteredValue(it) },
             keyboardOptions = KeyboardOptions.Default.copy(

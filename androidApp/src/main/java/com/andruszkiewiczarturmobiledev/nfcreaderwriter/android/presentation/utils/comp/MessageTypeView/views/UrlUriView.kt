@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.R
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.MenuNFC
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.ScaffoldMessageMakerView
@@ -47,6 +48,7 @@ fun UrlUriView(
         Column {
             TextFieldNFCCard(
                 value = tagValue,
+                keyboardType = KeyboardType.Uri,
                 placeHolder = stringResource(id = R.string.EnteredUrlUri),
                 enteredValue = { tagValue = it },
                 onDone = { keyboardController?.hide() },

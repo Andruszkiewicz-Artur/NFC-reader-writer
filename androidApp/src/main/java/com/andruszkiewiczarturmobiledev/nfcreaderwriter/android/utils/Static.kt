@@ -38,31 +38,6 @@ object Static {
             icon = Icons.Rounded.DatasetLinked,
             description = R.string.OwnURLURIDescription
         ),
-        TypeData.Search to TypeDataDescription(
-            name = R.string.Search,
-            icon = Icons.Rounded.Search,
-            description = R.string.SearchDescription
-        ),
-        TypeData.SocialNetwork to TypeDataDescription(
-            name = R.string.SocialNetwork,
-            icon = Icons.Rounded.Diversity3,
-            description = R.string.SocialNetworkDescription
-        ),
-        TypeData.Video to TypeDataDescription(
-            name = R.string.Video,
-            icon = Icons.Rounded.OndemandVideo,
-            description = R.string.VideoDescription
-        ),
-        TypeData.File to TypeDataDescription(
-            name = R.string.File,
-            icon = Icons.Rounded.FileCopy,
-            description = R.string.FileDescription
-        ),
-        TypeData.Application to TypeDataDescription(
-            name = R.string.Application,
-            icon = Icons.Rounded.Smartphone,
-            description = R.string.ApplicationDescription
-        ),
         TypeData.Email to TypeDataDescription(
             name = R.string.Email,
             icon = Icons.Rounded.Email,

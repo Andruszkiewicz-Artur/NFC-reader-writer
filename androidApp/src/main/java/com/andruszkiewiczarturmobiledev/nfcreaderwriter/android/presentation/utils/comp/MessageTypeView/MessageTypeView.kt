@@ -3,6 +3,9 @@ package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.ut
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.Composable
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.main.TypeData
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.ContactView
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.EmailView
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.OwnUrlUriView
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.PlainTextView
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.UrlUriView
 
@@ -18,30 +21,9 @@ fun MessageTypeView(
         when(innerTypeData) {
             TypeData.PlainText -> { PlainTextView(onClickAddValue = onClickAddButton) }
             TypeData.URLURI -> { UrlUriView(onClickAddValue = onClickAddButton) }
-            TypeData.OwnURLURI -> {
-
-            }
-            TypeData.Search -> {
-
-            }
-            TypeData.SocialNetwork -> {
-
-            }
-            TypeData.Video -> {
-
-            }
-            TypeData.File -> {
-
-            }
-            TypeData.Application -> {
-
-            }
-            TypeData.Email -> {
-
-            }
-            TypeData.Contact -> {
-
-            }
+            TypeData.OwnURLURI -> { OwnUrlUriView(onClickAddValue = onClickAddButton) }
+            TypeData.Email -> { EmailView(onClickAddValue = onClickAddButton) }
+            TypeData.Contact -> { ContactView(onClickAddValue = onClickAddButton) }
             TypeData.PhoneNumber -> {
 
             }
@@ -63,6 +45,7 @@ fun MessageTypeView(
             TypeData.Data -> {
 
             }
+            else -> {  }
         }
     }
 }

@@ -5,7 +5,7 @@
     <string name="NFCApp">Aplikacja NFC</string>
     <string name="DontSupportNFC">Twój telefon nie obsługuje komunikacji NFC</string>
     <string name="TurnOnNFC">Musisz włączyć NFC w swoim telefonie</string>
-    <string name="EnteredNewTag">Wprowadzono nowy tag...</string>
+    <string name="EnteredNewTag">Wprowadzono nowy tag…</string>
     <string name="SaveOnNFCCard">Zapisz na karcie NFC</string>
     <string name="EmulateNFCCard">Emuluj kartę NFC</string>
     <string name="Read">Odczytaj</string>
@@ -84,5 +84,15 @@
     <string name="Data">Dane</string>
     <string name="DataDescription">Udostępnij wartość mime</string>
     <string name="Add">Dodaj</string>
-    <string name="EnteredUrlUri">Wprowadź Uri/Url...</string>
+    <string name="EnteredUrlUri">Wprowadź Uri/Url…</string>
+    <string name="SearchingWord">Szukane słowo (git://link.adres)…</string>
+    <string name="To">Do…</string>
+    <string name="Subject">Temat…</string>
+    <string name="Content">Treść…</string>
+    <string name="NameOfContactPlaceholder">Nazwa kontatku…</string>
+    <string name="CompanyPlaceholder">Firma…</string>
+    <string name="AddressPlaceholder">Adres…</string>
+    <string name="PhoneNumberPlaceholder">Numer telefonu…</string>
+    <string name="EmailAddressPlaceholder">Email…</string>
+    <string name="WebsitePlaceholder">Strona internetowa…</string>
 </resources>
