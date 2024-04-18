@@ -95,4 +95,5 @@
     <string name="PhoneNumberPlaceholder">Phone number…</string>
     <string name="EmailAddressPlaceholder">Email…</string>
     <string name="WebsitePlaceholder">Website…</string>
+    <string name="SMSPlaceholder">SMS content…</string>
 </resources>

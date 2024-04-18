@@ -3,6 +3,7 @@ package com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.ut
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,10 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Cached
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,6 +54,7 @@ fun ScaffoldNFC(
     rowView: @Composable (TagValue) -> Unit
 ) {
     var isPresent by remember { mutableStateOf(false) }
+    var isPresentedTextFields by remember { mutableStateOf(true) }
 
     Scaffold(
         modifier = Modifier
@@ -86,30 +91,46 @@ fun ScaffoldNFC(
             ) {
                 item {
                     Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .clickable {
-                                isPresent = true
-                            }
+                            .fillMaxWidth()
                     ) {
-                        Text(
-                            text = stringResource(id = Static.listOfTypes.get(key = typeData)?.name ?: 0),
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row (
+                            modifier = Modifier
+                                .clickable {
+                                    isPresent = true
+                                }
+                        ) {
+                            Text(
+                                text = stringResource(id = Static.listOfTypes.get(key = typeData)?.name ?: 0),
+                                fontWeight = FontWeight.Bold
+                            )
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
 
-                        Icon(
-                            imageVector = Icons.Rounded.Cached,
-                            contentDescription = null
-                        )
+                            Icon(
+                                imageVector = Icons.Rounded.Cached,
+                                contentDescription = null
+                            )
+                        }
+
+                        IconButton(onClick = { isPresentedTextFields = !isPresentedTextFields }) {
+                            Icon(
+                                imageVector = if (isPresentedTextFields) Icons.Rounded.ArrowUpward else Icons.Rounded.ArrowDownward,
+                                contentDescription = null
+                            )
+                        }
                     }
                     
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    MessageTypeView(
-                        typeData = typeData,
-                        onClickAddButton = { onClickAddButton(it) }
-                    )
+                    AnimatedVisibility(visible = isPresentedTextFields) {
+                        MessageTypeView(
+                            typeData = typeData,
+                            onClickAddButton = { onClickAddButton(it) }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
                 }

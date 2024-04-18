@@ -6,7 +6,9 @@ import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.mai
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.ContactView
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.EmailView
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.OwnUrlUriView
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.PhoneNumberView
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.PlainTextView
+import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.SmsView
 import com.andruszkiewiczarturmobiledev.nfcreaderwriter.android.presentation.utils.comp.MessageTypeView.views.UrlUriView
 
 @Composable
@@ -24,28 +26,13 @@ fun MessageTypeView(
             TypeData.OwnURLURI -> { OwnUrlUriView(onClickAddValue = onClickAddButton) }
             TypeData.Email -> { EmailView(onClickAddValue = onClickAddButton) }
             TypeData.Contact -> { ContactView(onClickAddValue = onClickAddButton) }
-            TypeData.PhoneNumber -> {
-
-            }
-            TypeData.SMS -> {
-
-            }
-            TypeData.Location -> {
-
-            }
-            TypeData.OwnLocation -> {
-
-            }
-            TypeData.Address -> {
-
-            }
-            TypeData.WiFi -> {
-
-            }
-            TypeData.Data -> {
-
-            }
-            else -> {  }
+            TypeData.PhoneNumber -> { PhoneNumberView(onClickAddValue = onClickAddButton) }
+            TypeData.SMS -> { SmsView(onClickAddValue = onClickAddButton) }
+            TypeData.Location -> {  }
+            TypeData.OwnLocation -> {  }
+            TypeData.Address -> {  }
+            TypeData.WiFi -> {  }
+            TypeData.Data -> {  }
         }
     }
 }
