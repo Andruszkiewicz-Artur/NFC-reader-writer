@@ -112,19 +112,19 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                                 .fillMaxSize()
                                 .padding(padding)
                         ) {
-                            if (nfcAdapter == null) {
-                                Text(
-                                    text = stringResource(id = string.DontSupportNFC),
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
-                                )
-                            } else if (!nfcAdapter!!.isEnabled) {
-                                Text(
-                                    text = stringResource(id = string.TurnOnNFC),
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
-                                )
-                            } else {
+//                            if (nfcAdapter == null) {
+//                                Text(
+//                                    text = stringResource(id = string.DontSupportNFC),
+//                                    fontWeight = FontWeight.Bold,
+//                                    textAlign = TextAlign.Center
+//                                )
+//                            } else if (!nfcAdapter!!.isEnabled) {
+//                                Text(
+//                                    text = stringResource(id = string.TurnOnNFC),
+//                                    fontWeight = FontWeight.Bold,
+//                                    textAlign = TextAlign.Center
+//                                )
+//                            } else {
                                 NavHostMain(
                                     navHostController = navHostController,
                                     nfcReadState = state.readCardState,
@@ -135,7 +135,7 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
                                         viewModel.onEvent(MainEvent.SetWriteData(listOfMessages))
                                     }
                                 )
-                            }
+//                            }
                         }
                     }
                 }
@@ -186,7 +186,7 @@ class MainActivity : ComponentActivity(), NfcAdapter.ReaderCallback {
         isoDep.close()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
         if (intent != null) {

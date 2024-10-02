@@ -90,38 +90,38 @@ fun ScaffoldNFC(
                     .fillMaxWidth(0.9f)
             ) {
                 item {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Row (
-                            modifier = Modifier
-                                .clickable {
-                                    isPresent = true
-                                }
-                        ) {
-                            Text(
-                                text = stringResource(id = Static.listOfTypes.get(key = typeData)?.name ?: 0),
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Icon(
-                                imageVector = Icons.Rounded.Cached,
-                                contentDescription = null
-                            )
-                        }
-
-                        IconButton(onClick = { isPresentedTextFields = !isPresentedTextFields }) {
-                            Icon(
-                                imageVector = if (isPresentedTextFields) Icons.Rounded.ArrowUpward else Icons.Rounded.ArrowDownward,
-                                contentDescription = null
-                            )
-                        }
-                    }
+//                    Row(
+//                        horizontalArrangement = Arrangement.End,
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                    ) {
+//                        Row (
+//                            modifier = Modifier
+//                                .clickable {
+//                                    isPresent = true
+//                                }
+//                        ) {
+//                            Text(
+//                                text = stringResource(id = Static.listOfTypes.get(key = typeData)?.name ?: 0),
+//                                fontWeight = FontWeight.Bold
+//                            )
+//
+//                            Spacer(modifier = Modifier.width(8.dp))
+//
+//                            Icon(
+//                                imageVector = Icons.Rounded.Cached,
+//                                contentDescription = null
+//                            )
+//                        }
+//
+//                        IconButton(onClick = { isPresentedTextFields = !isPresentedTextFields }) {
+//                            Icon(
+//                                imageVector = if (isPresentedTextFields) Icons.Rounded.ArrowUpward else Icons.Rounded.ArrowDownward,
+//                                contentDescription = null
+//                            )
+//                        }
+//                    }
                     
                     Spacer(modifier = Modifier.height(16.dp))
 

@@ -51,7 +51,6 @@ fun TextFieldNFCCard(
             value = value,
             onValueChange = { enteredValue(it) },
             keyboardOptions = KeyboardOptions.Default.copy(
-                autoCorrect = autoCorrect,
                 capitalization = capitalization,
                 keyboardType = keyboardType,
                 imeAction = imeAction
@@ -96,7 +95,6 @@ fun TextFieldNFCCard(
             value = value,
             onValueChange = { enteredValue(it) },
             keyboardOptions = KeyboardOptions.Default.copy(
-                autoCorrect = autoCorrect,
                 capitalization = capitalization,
                 keyboardType = keyboardType,
                 imeAction = imeAction
